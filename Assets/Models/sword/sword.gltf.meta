@@ -1,0 +1,98 @@
+fileFormatVersion: 2
+guid: 2bda95273c07fec46bee7ccbe84d966f
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: all.001
+    second: {fileID: 2100000, guid: 6c7de87d95c4ffd4199c29692cd27205, type: 2}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 804e1ce4c496647cfa3f1a1134187c71, type: 3}
+  _removeEmptyRootObjects: 1
+  _scaleFactor: 1
+  _deduplicateResources: 0
+  _maximumLod: 300
+  _readWriteEnabled: 1
+  _generateColliders: 0
+  _swapUvs: 0
+  _generateLightmapUVs: 0
+  _importBlendShapeNames: 1
+  _blendShapeFrameWeight:
+    _option: 0
+    _multiplier: 1
+  _importNormals: 0
+  _importTangents: 0
+  _importCamera: 2
+  _importAnimations: 2
+  _mecanimHumanoidFlip: 0
+  _addAnimatorComponent: 0
+  _animationLoopTime: 1
+  _animationLoopPose: 0
+  _importMaterials: 1
+  _enableGpuInstancing: 0
+  _texturesReadWriteEnabled: 1
+  _generateMipMaps: 1
+  _useSceneNameIdentifier: 1
+  _textureCompression: -50
+  _gltfAsset: '<b>Generator: </b>Sketchfab-16.25.0
+
+    <b>Version: </b>2.0
+
+    
+
+    <b>Extras:
+    </b>
+
+    "author": "SimberGI (https://sketchfab.com/SimberGI)"
+
+    "license":
+    "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)"
+
+    "source": "https://sketchfab.com/3d-models/autumn-sword-28c2c7262e334e529709fb88e019a716"
+
+    "title":
+    "Autumn Sword"
+
+'
+  optimizeGameObjects: 0
+  materials:
+  - {fileID: -1542016450004331492, guid: 2bda95273c07fec46bee7ccbe84d966f, type: 3}
+  textures:
+  - {fileID: 2800000, guid: d53a105ad1b9715408db71e7285044f1, type: 3}
+  - {fileID: 2800000, guid: 034015e87547c52449f7152be9b2307c, type: 3}
+  - {fileID: 2800000, guid: de9f6c36e2a77bd4ca650595f1a7317b, type: 3}
+  - {fileID: 2800000, guid: 01e8737074c09c24387a538d6c3bdf1b, type: 3}
+  hasSceneData: 1
+  hasAnimationData: 0
+  hasMaterialData: 1
+  hasTextureData: 1
+  animations: []
+  _extensions:
+  - name: KHR_materials_emissive_strength
+    supported: 1
+    used: 1
+    required: 0
+  - name: KHR_materials_specular
+    supported: 1
+    used: 1
+    required: 0
+  _textures:
+  - texture: {fileID: 2800000, guid: d53a105ad1b9715408db71e7285044f1, type: 3}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: 034015e87547c52449f7152be9b2307c, type: 3}
+    shouldBeLinear: 1
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: de9f6c36e2a77bd4ca650595f1a7317b, type: 3}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: 01e8737074c09c24387a538d6c3bdf1b, type: 3}
+    shouldBeLinear: 1
+    shouldBeNormalMap: 1
+  _mainAssetIdentifier: scenes/Sketchfab_Scene
+  _importPlugins: []

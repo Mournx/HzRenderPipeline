@@ -1,0 +1,80 @@
+#pragma kernel LightAssign
+
+struct ClusterBox
+{
+    float3 p0, p1, p2, p3, p4, p5, p6, p7;
+};
+
+struct PointLight
+{
+    float3 color;
+    float intensity;
+    float3 position;
+    float radius;
+};
+
+struct LightIndex
+{
+    int count;
+	int start;
+};
+
+RWStructuredBuffer<ClusterBox> _clusterBuffer;
+RWStructuredBuffer<PointLight> _lightBuffer;
+RWStructuredBuffer<uint> _lightAssignBuffer;
+RWStructuredBuffer<LightIndex> _assignTable;
+
+float _numClusterX;
+float _numClusterY;
+float _numClusterZ;
+int _numLights;
+int _maxNumLightsPerCluster;
+
+uint Index3DTo1D(uint3 i)
+{
+    return i.z * _numClusterX * _numClusterY + i.y * _numClusterX + i.x;
+}
+
+bool PointSphereIntersect(float3 p, float4 sphere)
+{
+    return distance(p, sphere.xyz) < sphere.w;
+}
+
+bool ClusterLightIntersect(ClusterBox box, PointLight light)
+{
+    float4 sphere = float4(light.position, light.radius);
+    return PointSphereIntersect(box.p0, sphere)
+        || PointSphereIntersect(box.p1, sphere)
+        || PointSphereIntersect(box.p2, sphere)
+        || PointSphereIntersect(box.p3, sphere)
+        || PointSphereIntersect(box.p4, sphere)
+        || PointSphereIntersect(box.p5, sphere)
+        || PointSphereIntersect(box.p6, sphere)
+        || PointSphereIntersect(box.p7, sphere);
+}
+
+[numthreads(16,16,1)]
+void LightAssign(uint3 gtid : SV_GroupThreadID, uint3 gid : SV_GroupID)
+{
+    uint i = gtid.x, j  = gtid.y, k = gid.x;
+    uint clusterId = Index3DTo1D(uint3(i, j, k));
+
+    ClusterBox box = _clusterBuffer[clusterId];
+
+    // index of _lightAssignBuffer
+    uint startIndex = clusterId * _maxNumLightsPerCluster;
+    uint endIndex = startIndex;
+
+    for(int id = 0; id < _numLights; id++)
+    {
+        PointLight pointLight = _lightBuffer[id];
+        if(!ClusterLightIntersect(box, pointLight)) continue;
+        _lightAssignBuffer[endIndex++] = uint(id);
+    }
+
+    // write back
+    LightIndex idx;
+    idx.count = endIndex - startIndex;
+	idx.start = startIndex;
+    _assignTable[clusterId] = idx;
+}

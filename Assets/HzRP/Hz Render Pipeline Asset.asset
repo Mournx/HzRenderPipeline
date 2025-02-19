@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a628081ab573fef4fab52f7f1b77bd82, type: 3}
+  m_Name: Hz Render Pipeline Asset
+  m_EditorClassIdentifier: 
+  diffuseIBL: {fileID: 8900000, guid: d6de08cbc30c16748960e1c4330e6e12, type: 3}
+  specularIBL: {fileID: 8900000, guid: 2f886fc8eb5e47e4897c11e3a8a19cb3, type: 3}
+  brdfLut: {fileID: 2800000, guid: 89252e11f7e138d4d8c66e868b8d5810, type: 3}
+  blueNoiseTex: {fileID: 2800000, guid: ed7ee9d48ed9e564f87258d0a01a8881, type: 3}
+  csmSettings:
+    maxDistance: 1500
+    usingShadowMask: 1
+    level0:
+      shadingPointNormalBias: 0.1
+      depthNormalBias: 0.005
+      pcssSearchRadius: 0.1
+      pcssFilterRadius: 1
+    level1:
+      shadingPointNormalBias: 0.1
+      depthNormalBias: 0.005
+      pcssSearchRadius: 0.05
+      pcssFilterRadius: 1
+    level2:
+      shadingPointNormalBias: 0.1
+      depthNormalBias: 0.005
+      pcssSearchRadius: 1
+      pcssFilterRadius: 1
+    level3:
+      shadingPointNormalBias: 0.1
+      depthNormalBias: 0.005
+      pcssSearchRadius: 1
+      pcssFilterRadius: 1
+  instanceDatas:
+  - {fileID: 11400000, guid: 8b81d4dac8b292747884c476af3211ab, type: 2}

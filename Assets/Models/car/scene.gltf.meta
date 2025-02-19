@@ -1,0 +1,180 @@
+fileFormatVersion: 2
+guid: 4f5e9803346df4d4884963d532fd010a
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: black
+    second: {fileID: 2100000, guid: a0144a4efd594a840aa5ef530dcaf4ad, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: calip
+    second: {fileID: 2100000, guid: 05ad185ec3ae95e49b9b68de3993e0e7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: car_ford_gt_mkiiDefault1
+    second: {fileID: 2100000, guid: 97a675bbf16a094499dcea518b8b5a8a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: carbon
+    second: {fileID: 2100000, guid: b42f77adfe2feec4495b00d66f93733b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: carpaint
+    second: {fileID: 2100000, guid: 5f8c9d31204638a4f944a9058d6917e1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: glas
+    second: {fileID: 2100000, guid: b0457c0af55951a4bada94e69e0cc8c8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: material
+    second: {fileID: 2100000, guid: 00e49b251503881458a2f0fbbb07628b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: phong6
+    second: {fileID: 2100000, guid: c58aa7b55a5de194aad98d31c7f0f977, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tyre
+    second: {fileID: 2100000, guid: ff5afc1e484911043a21186b1b55320d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: under
+    second: {fileID: 2100000, guid: 82e42540ab1a6b94297d7455db02d76e, type: 2}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 804e1ce4c496647cfa3f1a1134187c71, type: 3}
+  _removeEmptyRootObjects: 1
+  _scaleFactor: 1
+  _deduplicateResources: 0
+  _maximumLod: 300
+  _readWriteEnabled: 1
+  _generateColliders: 0
+  _swapUvs: 0
+  _generateLightmapUVs: 0
+  _importBlendShapeNames: 1
+  _blendShapeFrameWeight:
+    _option: 0
+    _multiplier: 1
+  _importNormals: 0
+  _importTangents: 0
+  _importCamera: 2
+  _importAnimations: 2
+  _mecanimHumanoidFlip: 0
+  _addAnimatorComponent: 0
+  _animationLoopTime: 1
+  _animationLoopPose: 0
+  _importMaterials: 1
+  _enableGpuInstancing: 0
+  _texturesReadWriteEnabled: 1
+  _generateMipMaps: 1
+  _useSceneNameIdentifier: 1
+  _textureCompression: -50
+  _gltfAsset: '<b>Generator: </b>Sketchfab-16.56.0
+
+    <b>Version: </b>2.0
+
+    
+
+    <b>Extras:
+    </b>
+
+    "author": "Ddiaz Design (https://sketchfab.com/ddiaz-design)"
+
+    "license":
+    "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)"
+
+    "source": "https://sketchfab.com/3d-models/2019-ford-gt-mkii-track-bffecac59a6b4bc49534be85b5b501c0"
+
+    "title":
+    "2019 Ford GT MKII Track"
+
+'
+  optimizeGameObjects: 0
+  materials:
+  - {fileID: 8534408245897619167, guid: 4f5e9803346df4d4884963d532fd010a, type: 3}
+  - {fileID: -7987679009033344122, guid: 4f5e9803346df4d4884963d532fd010a, type: 3}
+  - {fileID: 6871789213317748198, guid: 4f5e9803346df4d4884963d532fd010a, type: 3}
+  - {fileID: 586645097001841572, guid: 4f5e9803346df4d4884963d532fd010a, type: 3}
+  - {fileID: 4362962105363994262, guid: 4f5e9803346df4d4884963d532fd010a, type: 3}
+  - {fileID: 4352284914225708712, guid: 4f5e9803346df4d4884963d532fd010a, type: 3}
+  - {fileID: -2601811543618694050, guid: 4f5e9803346df4d4884963d532fd010a, type: 3}
+  - {fileID: 2666889277425218051, guid: 4f5e9803346df4d4884963d532fd010a, type: 3}
+  - {fileID: 7650243845634079038, guid: 4f5e9803346df4d4884963d532fd010a, type: 3}
+  - {fileID: -445922478221506470, guid: 4f5e9803346df4d4884963d532fd010a, type: 3}
+  textures:
+  - {fileID: 2800000, guid: 1520067bd7fad8948a0cf2196c0851da, type: 3}
+  - {fileID: 2800000, guid: 952716e75b2680942b91c7fb38a12a35, type: 3}
+  - {fileID: 2800000, guid: dbc9e57e6c9b63e4b8a4469d69edcfaf, type: 3}
+  - {fileID: 2800000, guid: 029530b92ef1cd74fadd38a2cf48a812, type: 3}
+  - {fileID: 2800000, guid: 4d1d93793067ce44885001aee3537fb0, type: 3}
+  - {fileID: 2800000, guid: 6298a88265398ce43ae4efc7c3781af0, type: 3}
+  - {fileID: 2800000, guid: 3ed68d1fe6448034dbc635772b2a9fcb, type: 3}
+  - {fileID: 2800000, guid: a1ec9abaeb47cce479db8bee738260f9, type: 3}
+  - {fileID: 2800000, guid: a693b80d5181b144da61699667b17133, type: 3}
+  - {fileID: 2800000, guid: f4ec3269f48c2cc4e84c375af520477a, type: 3}
+  hasSceneData: 1
+  hasAnimationData: 0
+  hasMaterialData: 1
+  hasTextureData: 1
+  animations: []
+  _extensions:
+  - name: KHR_materials_transmission
+    supported: 1
+    used: 1
+    required: 0
+  - name: KHR_materials_specular
+    supported: 1
+    used: 1
+    required: 0
+  - name: KHR_materials_clearcoat
+    supported: 1
+    used: 1
+    required: 0
+  _textures:
+  - texture: {fileID: 2800000, guid: 1520067bd7fad8948a0cf2196c0851da, type: 3}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: 952716e75b2680942b91c7fb38a12a35, type: 3}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: dbc9e57e6c9b63e4b8a4469d69edcfaf, type: 3}
+    shouldBeLinear: 1
+    shouldBeNormalMap: 1
+  - texture: {fileID: 2800000, guid: 029530b92ef1cd74fadd38a2cf48a812, type: 3}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: 4d1d93793067ce44885001aee3537fb0, type: 3}
+    shouldBeLinear: 1
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: 6298a88265398ce43ae4efc7c3781af0, type: 3}
+    shouldBeLinear: 1
+    shouldBeNormalMap: 1
+  - texture: {fileID: 2800000, guid: 3ed68d1fe6448034dbc635772b2a9fcb, type: 3}
+    shouldBeLinear: 1
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: a1ec9abaeb47cce479db8bee738260f9, type: 3}
+    shouldBeLinear: 1
+    shouldBeNormalMap: 1
+  - texture: {fileID: 2800000, guid: a693b80d5181b144da61699667b17133, type: 3}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {fileID: 2800000, guid: f4ec3269f48c2cc4e84c375af520477a, type: 3}
+    shouldBeLinear: 1
+    shouldBeNormalMap: 1
+  _mainAssetIdentifier: scenes/Sketchfab_Scene
+  _importPlugins: []

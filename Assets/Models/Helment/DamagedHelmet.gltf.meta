@@ -1,0 +1,80 @@
+fileFormatVersion: 2
+guid: d11bfa25c64f80e4d8c6af146bea0a16
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_MR
+    second: {fileID: 2100000, guid: 204785d5466bd9a439135300e2d0ca75, type: 2}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 804e1ce4c496647cfa3f1a1134187c71, type: 3}
+  _removeEmptyRootObjects: 1
+  _scaleFactor: 1
+  _deduplicateResources: 0
+  _maximumLod: 300
+  _readWriteEnabled: 1
+  _generateColliders: 0
+  _swapUvs: 0
+  _generateLightmapUVs: 0
+  _importBlendShapeNames: 1
+  _blendShapeFrameWeight:
+    _option: 0
+    _multiplier: 1
+  _importNormals: 0
+  _importTangents: 0
+  _importCamera: 2
+  _importAnimations: 2
+  _mecanimHumanoidFlip: 0
+  _addAnimatorComponent: 0
+  _animationLoopTime: 1
+  _animationLoopPose: 0
+  _importMaterials: 1
+  _enableGpuInstancing: 0
+  _texturesReadWriteEnabled: 1
+  _generateMipMaps: 1
+  _useSceneNameIdentifier: 1
+  _textureCompression: -50
+  _gltfAsset: '<b>Generator: </b>Khronos Blender glTF 2.0 exporter
+
+    <b>Version:
+    </b>2.0
+
+'
+  optimizeGameObjects: 0
+  materials:
+  - {fileID: -7008099243658241802, guid: d11bfa25c64f80e4d8c6af146bea0a16, type: 3}
+  textures:
+  - {fileID: -5632060560972687692, guid: d11bfa25c64f80e4d8c6af146bea0a16, type: 3}
+  - {fileID: 4720745319259159875, guid: d11bfa25c64f80e4d8c6af146bea0a16, type: 3}
+  - {fileID: -5977100671982111999, guid: d11bfa25c64f80e4d8c6af146bea0a16, type: 3}
+  - {fileID: -3562478889933164031, guid: d11bfa25c64f80e4d8c6af146bea0a16, type: 3}
+  - {fileID: 3865352828653938227, guid: d11bfa25c64f80e4d8c6af146bea0a16, type: 3}
+  hasSceneData: 1
+  hasAnimationData: 0
+  hasMaterialData: 1
+  hasTextureData: 1
+  animations: []
+  _extensions: []
+  _textures:
+  - texture: {instanceID: 0}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {instanceID: 0}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {instanceID: 0}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {instanceID: 0}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  - texture: {instanceID: 0}
+    shouldBeLinear: 0
+    shouldBeNormalMap: 0
+  _mainAssetIdentifier: scenes/Scene
+  _importPlugins: []
