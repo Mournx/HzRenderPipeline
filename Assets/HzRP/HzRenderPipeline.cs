@@ -257,6 +257,8 @@ public class HzRenderPipeline : RenderPipeline
     context.ExecuteCommandBuffer(cmd);
     cmd.Clear();
     context.Submit();
+    
+    Profiler.EndSample();
   }
 
   void ClusterLightingPass(ScriptableRenderContext context, Camera camera)
@@ -287,6 +289,7 @@ public class HzRenderPipeline : RenderPipeline
       InstanceDraw.Draw(instanceDatas[i], Camera.main, computeShader, vpMatrixPrev, hizBuffer, ref cmd);
     
     context.ExecuteCommandBuffer(cmd);
+    cmd.Clear();
     context.Submit();
     
     Profiler.EndSample();
@@ -322,6 +325,9 @@ public class HzRenderPipeline : RenderPipeline
     }
     
     context.ExecuteCommandBuffer(cmd);
+    cmd.Clear();
     context.Submit();
+    
+    Profiler.EndSample();
   }
 }

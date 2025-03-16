@@ -22,13 +22,13 @@ MonoBehaviour:
     level0:
       shadingPointNormalBias: 0.1
       depthNormalBias: 0.005
-      pcssSearchRadius: 0.1
-      pcssFilterRadius: 1
+      pcssSearchRadius: 0.4
+      pcssFilterRadius: 2
     level1:
-      shadingPointNormalBias: 0.1
+      shadingPointNormalBias: 0.12
       depthNormalBias: 0.005
-      pcssSearchRadius: 0.05
-      pcssFilterRadius: 1
+      pcssSearchRadius: 0.75
+      pcssFilterRadius: 7
     level2:
       shadingPointNormalBias: 0.1
       depthNormalBias: 0.005
