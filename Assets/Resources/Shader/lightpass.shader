@@ -49,7 +49,7 @@ Shader "HzRP/lightpass"
                 float3 albedo = tex2D(_GT0, uv).rgb;
                 float3 normal = tex2D(_GT1, uv).rgb * 2 - 1;
                 float2 motionVec = GT2.rg;
-                float roughness = GT2.b;
+                float linearRoughness = GT2.b;
                 float metallic = GT2.a;
                 float3 emission = GT3.rgb;
                 float occlusion = GT3.a;
@@ -69,9 +69,9 @@ Shader "HzRP/lightpass"
                 float3 V = normalize(_WorldSpaceCameraPos.xyz - worldPos.xyz);
                 float3 radiance = _LightColor0.rgb;
 
-                float3 direct = PBR(N, V, L, albedo, radiance, roughness, metallic);
+                float3 direct = PBR(N, V, L, albedo, radiance, linearRoughness, metallic);
 
-                float3 ambient = IBL(N, V, albedo, roughness, metallic, _diffuseIBL, _specularIBL, _brdfLut);
+                float3 ambient = IBL(N, V, albedo, linearRoughness, metallic, _diffuseIBL, _specularIBL, _brdfLut);
 
                 color += ambient * occlusion;
                 color += emission;
@@ -106,7 +106,7 @@ Shader "HzRP/lightpass"
                     float attenuation = saturate(1 - (d2 / r2) * (d2 / r2));
                     attenuation *= attenuation;
 
-                    color += PBR(N, V, L, albedo, radiance, roughness, metallic) * light.intensity * attenuation;
+                    color += PBR(N, V, L, albedo, radiance, linearRoughness, metallic) * light.intensity * attenuation;
                 }
 
                 return float4(color, 1);

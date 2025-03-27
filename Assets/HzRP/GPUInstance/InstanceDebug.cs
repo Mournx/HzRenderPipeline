@@ -11,7 +11,7 @@ public class InstanceDebug : MonoBehaviour
     public Camera camera;
 
     public bool culling = false;
-
+  
     private void Update()
     {
         if (camera == null) camera = Camera.main;
@@ -20,5 +20,15 @@ public class InstanceDebug : MonoBehaviour
         if(culling)
             InstanceDraw.Draw(data, camera, computeShader);
         else InstanceDraw.Draw(data);
+    }
+
+    private void OnDisable()
+    {
+        data.argsBuffer?.Release();
+        data.argsBuffer = null;
+        data.matrixBuffer?.Release();
+        data.matrixBuffer = null;
+        data.validMatrixBuffer?.Release();
+        data.validMatrixBuffer = null;
     }
 }

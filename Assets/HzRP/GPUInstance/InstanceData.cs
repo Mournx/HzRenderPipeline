@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "RenderPipeline/InstanceData")]
+[CreateAssetMenu(menuName = "Hz Render Pipeline/InstanceData")]
 public class InstanceData : ScriptableObject
 {
    [HideInInspector] public Matrix4x4[] mats;  //变换矩阵
@@ -23,7 +23,8 @@ public class InstanceData : ScriptableObject
    public float maxDistance = 50.0f;
    public float minHeight = -0.5f;
    public float maxHeight = 0.5f;
-
+   
+   
    public void GenerateRandomData()
    {
       instanceCount = instanceNum;
@@ -52,5 +53,14 @@ public class InstanceData : ScriptableObject
       argsBuffer.Release(); argsBuffer = null;
       
       Debug.Log("Successfully Generate Instance Data.");
+   }
+
+   public void CleanData()
+   {
+      matrixBuffer.Release(); matrixBuffer = null;
+      validMatrixBuffer.Release(); validMatrixBuffer = null;
+      argsBuffer.Release(); argsBuffer = null;
+      
+      Debug.Log("Successfully clean Instance Data.");
    }
 }

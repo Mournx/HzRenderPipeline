@@ -12,5 +12,7 @@ public class InstanceDataEditor : Editor
       var instanceData = (InstanceData)target;
       if (GUILayout.Button("Generate InstanceData randomly", GUILayout.Height(40)))
         instanceData.GenerateRandomData();
+      if(GUILayout.Button("Clean Data",GUILayout.Height(30)))
+          instanceData.CleanData();
     }
 }

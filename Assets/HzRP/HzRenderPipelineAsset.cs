@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-[CreateAssetMenu(menuName = "Rendering/HzRenderPipeline")]
+[CreateAssetMenu(menuName = "Hz Render Pipeline/ HzRP Asset")]
 public class HzRenderPipelineAsset : RenderPipelineAsset
 {
     public Cubemap diffuseIBL;
