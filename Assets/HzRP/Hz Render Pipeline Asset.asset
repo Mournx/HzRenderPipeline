@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a628081ab573fef4fab52f7f1b77bd82, type: 3}
   m_Name: Hz Render Pipeline Asset
   m_EditorClassIdentifier: 
-  diffuseIBL: {fileID: 8900000, guid: d6de08cbc30c16748960e1c4330e6e12, type: 3}
-  specularIBL: {fileID: 8900000, guid: 2f886fc8eb5e47e4897c11e3a8a19cb3, type: 3}
   brdfLut: {fileID: 2800000, guid: 89252e11f7e138d4d8c66e868b8d5810, type: 3}
+  globalEnvMapDiffuse: {fileID: 8900000, guid: a8cb2f61984d139459dab1b084c42c40, type: 3}
+  globalEnvMapSpecular: {fileID: 8900000, guid: 6832002c13460d24b84e08d022cc18b3, type: 3}
+  globalEnvMapRotation: 0
+  skyboxMipLevel: 0
+  skyboxIntensity: 1
   blueNoiseTex: {fileID: 2800000, guid: ed7ee9d48ed9e564f87258d0a01a8881, type: 3}
   csmSettings:
     maxDistance: 1500

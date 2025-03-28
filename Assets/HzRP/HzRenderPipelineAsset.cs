@@ -6,10 +6,17 @@ using UnityEngine.Rendering;
 [CreateAssetMenu(menuName = "Hz Render Pipeline/ HzRP Asset")]
 public class HzRenderPipelineAsset : RenderPipelineAsset
 {
-    public Cubemap diffuseIBL;
-    public Cubemap specularIBL;
     public Texture brdfLut;
-
+    
+    public Cubemap globalEnvMapDiffuse;
+    public Cubemap globalEnvMapSpecular;
+    [Range(0f, 360.0f)]
+    public float globalEnvMapRotation;
+    [Range(0f, 11.0f)]
+    public float skyboxMipLevel;
+    [Range(0f, 3f)]
+    public float skyboxIntensity = 1.0f;
+    
     public Texture blueNoiseTex;
     
     [SerializeField]
@@ -20,8 +27,8 @@ public class HzRenderPipelineAsset : RenderPipelineAsset
     {
         HzRenderPipeline rp =  new HzRenderPipeline();
 
-        rp.diffuseIBL = diffuseIBL;
-        rp.specularIBL = specularIBL;
+        rp.globalEnvMapDiffuse = globalEnvMapDiffuse;
+        rp.globalEnvMapSpecular = globalEnvMapSpecular;
         rp.brdfLut = brdfLut;
 
         rp.blueNoiseTex = blueNoiseTex;

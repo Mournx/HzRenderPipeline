@@ -25,7 +25,7 @@ Shader "HzRP/gbuffer"
             #pragma vertex vert
             #pragma fragment frag
 
-           #include "UnityCG.cginc"
+           #include "HzRPCommon.cginc"
 
             struct v2f
             {
@@ -62,7 +62,7 @@ Shader "HzRP/gbuffer"
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "UnityCG.cginc"
+            #include "HzRPCommon.cginc"
             
             struct appdata
             {

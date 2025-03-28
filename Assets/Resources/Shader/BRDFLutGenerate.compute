@@ -1,6 +1,6 @@
 #pragma kernel GenerateIBLLut
 
-#include "BRDF.cginc"
+#include "HzRPCommon.cginc"
 
 float _Width;
 float _Height;

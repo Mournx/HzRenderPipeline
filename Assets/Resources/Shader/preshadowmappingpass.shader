@@ -14,10 +14,8 @@ Shader "HzRP/preshadowmappingpass"
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "globaluniform.cginc"
-            #include "UnityCG.cginc"
-            #include "shadow.cginc"
-
+            #include "HzRPCommon.cginc"
+            
             struct appdata
             {
                 float4 vertex : POSITION;

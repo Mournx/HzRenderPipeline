@@ -18,8 +18,8 @@ public class HzRenderPipeline : RenderPipeline
   private Matrix4x4 vpMatrixInvPrev;
   
   //IBL贴图
-  public Cubemap diffuseIBL;
-  public Cubemap specularIBL;
+  public Cubemap globalEnvMapDiffuse;
+  public Cubemap globalEnvMapSpecular;
   public Texture brdfLut;
   
   //噪声图
@@ -94,9 +94,9 @@ public class HzRenderPipeline : RenderPipeline
     Shader.SetGlobalMatrix("_vpMatrixPrev", vpMatrixPrev);
     Shader.SetGlobalMatrix("_vpMatrixInvPrev", vpMatrixInvPrev);
     
-    Shader.SetGlobalTexture("_diffuseIBL", diffuseIBL);
-    Shader.SetGlobalTexture("_specularIBL", specularIBL);
-    Shader.SetGlobalTexture("_brdfLut", brdfLut);
+    Shader.SetGlobalTexture("_GlobalEnvMapDiffuse", globalEnvMapDiffuse);
+    Shader.SetGlobalTexture("_GlobalEnvMapSpecular", globalEnvMapSpecular);
+    Shader.SetGlobalTexture("_PreintegratedDGFLut", brdfLut);
 
     //设置csm
     Shader.SetGlobalFloat("_orthoDistance", camera.farClipPlane - camera.nearClipPlane);

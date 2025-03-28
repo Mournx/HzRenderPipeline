@@ -14,8 +14,7 @@ Shader "HzRP/blur1xN"
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "globaluniform.cginc"
-            #include "UnityCG.cginc"
+            #include "HzRPCommon.cginc"
 
             struct appdata
             {

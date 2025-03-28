@@ -72,7 +72,7 @@ Shader "HzRP/gbufferInstance"
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "UnityCG.cginc"
+            #include "HzRPCommon.cginc"
 
             struct appdata
             {

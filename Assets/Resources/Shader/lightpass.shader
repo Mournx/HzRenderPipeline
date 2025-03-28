@@ -14,11 +14,8 @@ Shader "HzRP/lightpass"
             #pragma vertex vert
             #pragma fragment frag
             
-            #include "UnityCG.cginc"
-            #include "globaluniform.cginc"
             #include "UnityLightingCommon.cginc"
-            #include "BRDF.cginc"
-            #include "Cluster.cginc"
+            #include "HzRPCommon.cginc"
 
             struct appdata
             {
@@ -71,7 +68,7 @@ Shader "HzRP/lightpass"
 
                 float3 direct = PBR(N, V, L, albedo, radiance, linearRoughness, metallic);
 
-                float3 ambient = IBL(N, V, albedo, linearRoughness, metallic, _diffuseIBL, _specularIBL, _brdfLut);
+                float3 ambient = IBL(N, V, albedo, linearRoughness, metallic);
 
                 color += ambient * occlusion;
                 color += emission;

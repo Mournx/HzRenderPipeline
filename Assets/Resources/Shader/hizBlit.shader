@@ -14,7 +14,7 @@ Shader "HzRP/hizBlit"
             #pragma vertex vert
             #pragma fragment frag
             
-            #include "UnityCG.cginc"          
+            #include "HzRPCommon.cginc"         
 
             struct appdata
             {

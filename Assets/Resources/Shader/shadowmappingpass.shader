@@ -13,10 +13,8 @@ Shader "HzRP/shadowmappingpass"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-
-            #include "globaluniform.cginc"
-            #include "UnityCG.cginc"
-            #include "shadow.cginc"
+            
+            #include "HzRPCommon.cginc"
         
 
             struct appdata
