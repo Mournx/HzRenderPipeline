@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   iblLutResolution: 1024
   iblLutFormat: 24
-  iblLutGenerateShader: {fileID: 0}
+  iblLutGenerateShader: {fileID: 7200000, guid: 0c17fbd429a6f4549b73b30285f30111, type: 3}

@@ -804,7 +804,8 @@ float3 ImportanceSampleGGX(float2 u, float3 N, float alphaG2){
     float3 tangent = normalize(cross(up, N));
     float3 bitangent = cross(N, tangent);
 
-    return tangent * H.x + bitangent * H.y + N * H.z;
+    float3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z;
+    return normalize(sampleVec);
 }
 
 float IBL_G_SmithGGX(float NdotV, float NdotL, float alphaG2){
@@ -856,7 +857,7 @@ float2 PrecomputeSpecularL_DFG(float3 V, float NdotV, float linearRoughness){
             float G = IBL_G_SmithGGX(NdotV, NdotL, alphaG2);
             float Gv = G * VdotH / NdotH;
             float Fc = pow5(1.0f - VdotH);
-            r.x += Gv;
+            r.x += Gv ;
             r.y += Gv * Fc;
         }
     }
@@ -944,7 +945,7 @@ float3 EvaluateSpecularIBL(float3 R, float linearRoughness, float3 GF, float3 en
 }
 
 float3 CompensateDirectBRDF(float2 envGF, inout float3 energyCompensation, float3 specularColor){
-    float3 reflectionGF = lerp(envGF.ggg, envGF.rrr, specularColor);
+    float3 reflectionGF = lerp(saturate(50.f * specularColor.g) * envGF.ggg, envGF.rrr, specularColor);
     energyCompensation = 1.0f + specularColor * (1.0f / envGF.r - 1.0f);
 
     return reflectionGF;

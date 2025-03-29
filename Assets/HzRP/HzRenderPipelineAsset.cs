@@ -29,6 +29,9 @@ public class HzRenderPipelineAsset : RenderPipelineAsset
 
         rp.globalEnvMapDiffuse = globalEnvMapDiffuse;
         rp.globalEnvMapSpecular = globalEnvMapSpecular;
+        rp.skyboxIntensity = skyboxIntensity;
+        rp.skyboxMipLevel = skyboxMipLevel;
+        rp.globalEnvMapRotation = globalEnvMapRotation;
         rp.brdfLut = brdfLut;
 
         rp.blueNoiseTex = blueNoiseTex;

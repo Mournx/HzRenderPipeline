@@ -10,6 +10,7 @@ Shader "HzRP/lightpass"
 
         Pass
         {
+            Tags {"LightMode" = "ForwardBase"}
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag

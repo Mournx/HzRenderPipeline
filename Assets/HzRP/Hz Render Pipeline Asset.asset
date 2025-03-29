@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a628081ab573fef4fab52f7f1b77bd82, type: 3}
   m_Name: Hz Render Pipeline Asset
   m_EditorClassIdentifier: 
-  brdfLut: {fileID: 2800000, guid: 89252e11f7e138d4d8c66e868b8d5810, type: 3}
-  globalEnvMapDiffuse: {fileID: 8900000, guid: a8cb2f61984d139459dab1b084c42c40, type: 3}
-  globalEnvMapSpecular: {fileID: 8900000, guid: 6832002c13460d24b84e08d022cc18b3, type: 3}
+  brdfLut: {fileID: 2800000, guid: 06a142499c3bde9459bd168f72d23db4, type: 3}
+  globalEnvMapDiffuse: {fileID: 8900000, guid: 19dd000a66b4767469a67228485d3578, type: 3}
+  globalEnvMapSpecular: {fileID: 8900000, guid: 61484959b4d39764393e58cd7b8d8cd8, type: 3}
   globalEnvMapRotation: 0
   skyboxMipLevel: 0
   skyboxIntensity: 1

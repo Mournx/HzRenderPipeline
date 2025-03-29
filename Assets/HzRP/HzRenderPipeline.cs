@@ -20,6 +20,12 @@ public class HzRenderPipeline : RenderPipeline
   //IBL贴图
   public Cubemap globalEnvMapDiffuse;
   public Cubemap globalEnvMapSpecular;
+  [Range(0f, 360.0f)]
+  public float globalEnvMapRotation;
+  [Range(0f, 11.0f)]
+  public float skyboxMipLevel;
+  [Range(0f, 3f)]
+  public float skyboxIntensity = 1.0f;
   public Texture brdfLut;
   
   //噪声图
@@ -96,6 +102,9 @@ public class HzRenderPipeline : RenderPipeline
     
     Shader.SetGlobalTexture("_GlobalEnvMapDiffuse", globalEnvMapDiffuse);
     Shader.SetGlobalTexture("_GlobalEnvMapSpecular", globalEnvMapSpecular);
+    Shader.SetGlobalFloat("_GlobalEnvMapRotation", globalEnvMapRotation);
+    Shader.SetGlobalFloat("_SkyboxMipLevel", skyboxMipLevel);
+    Shader.SetGlobalFloat("_SkyboxIntensity", skyboxIntensity);
     Shader.SetGlobalTexture("_PreintegratedDGFLut", brdfLut);
 
     //设置csm
