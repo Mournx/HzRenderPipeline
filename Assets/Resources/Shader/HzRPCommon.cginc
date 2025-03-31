@@ -10,7 +10,8 @@
 #define SPEC_IBL_MAX_MIP (6u)
 #define DIFF_IBL_MAX_MIP (11u)
 
-
+#define KILL_MICRO_MOVEMENT
+#define MICRO_MOVEMENT_THRESHOLD (.01f / _ScreenParams.xy)
 //////////////////////////////////////////
 // Image Based Lighting Variables       //
 //////////////////////////////////////////
@@ -61,6 +62,10 @@ float _csmMaxDistance;
 
 float4x4 _vpMatrix;
 float4x4 _vpMatrixInv;
+float4x4 _nonjitterVPMatrix;
+float4x4 _nonjitterVPMatrixInv;
+float4x4 _FrustumCornersWS;
+float4x4 _PrevFrustumCornersWS;
 
 float4x4 _shadowVpMatrix0;
 float4x4 _shadowVpMatrix1;
@@ -101,7 +106,6 @@ float _pcssFilterRadius0;
 float _pcssFilterRadius1;
 float _pcssFilterRadius2;
 float _pcssFilterRadius3;
-
 
 //////////////////////////////////////////
 //         Cluster Related            //
@@ -182,6 +186,64 @@ float4 SignNotZero(float4 n) {
 float DistanceSqr(float3 a, float3 b) {
     float3 diff = a - b;
     return dot(diff, diff);
+}
+
+float4 VertexIDToPosCS(uint vertexID) {
+    return float4(
+        vertexID <= 1 ? -1.0f : 3.0f,
+        vertexID == 1 ? 3.0f : -1.0f,
+        .0f,
+        1.0f);
+}
+
+float2 VertexIDToScreenUV(uint vertexID) {
+    return float2(
+        vertexID <= 1 ? .0f : 2.0f,
+        vertexID == 1 ? 2.0f : .0f);
+}
+
+float4 VertexIDToFrustumCorners(uint vertexID) {
+    return _FrustumCornersWS[vertexID];
+}
+
+float4 GetZBufferParams() {
+    return _FrustumCornersWS[3];
+}
+
+float4 GetPrevZBufferParams() {
+    return _PrevFrustumCornersWS[3];
+}
+
+float4 DepthToWorldPosFast(float depth, float3 ray) {
+    float3 worldPos = _WorldSpaceCameraPos.xyz + Linear01Depth(depth) * ray;
+    return float4(worldPos, 1.0f);
+}
+
+float4 DepthToWorldPos(float depth, float2 uv) {
+    float4 ndc = float4(uv.x * 2.0f - 1.0f, uv.y * 2.0f - 1.0f, depth, 1.0f);
+    float4 worldPosAccurate = mul(_vpMatrixInv, ndc);
+    worldPosAccurate /= worldPosAccurate.w;
+    worldPosAccurate.w = 1.0f;
+    return worldPosAccurate;
+}
+
+float2 CalculateMotionVector(float4 posCS, float4 prevPosCS){
+    float2 posNDC = posCS.xy / posCS.w;
+    float2 prevPosNDC = prevPosCS.xy / prevPosCS.w;
+    float2 mv = posNDC - prevPosNDC;
+
+    #ifdef KILL_MICRO_MOVEMENT
+    mv.x = abs(mv.x) < MICRO_MOVEMENT_THRESHOLD.x ? .0f : mv.x;
+    mv.y = abs(mv.y) < MICRO_MOVEMENT_THRESHOLD.y ? .0f : mv.y;
+    mv = clamp(mv, -1.0f + MICRO_MOVEMENT_THRESHOLD, 1.0f - MICRO_MOVEMENT_THRESHOLD);
+    #else
+    mv = clamp(mv, -1.0f + MICRO_MOVEMENT_THRESHOLD, 1.0f - MICRO_MOVEMENT_THRESHOLD);
+    #endif
+
+    if (_ProjectionParams.x < .0f) mv.y = -mv.y;
+    // mv.x = -mv.x;
+
+    return mv * .5f;
 }
 
 /*
@@ -976,9 +1038,6 @@ float3 GetGFFromLut(inout float3 energyCompensation, float3 specularColor, float
 //Direct lighting
 float3 PBR(float3 N, float3 V, float3 L, float3 albedo, float3 radiance, float linearRoughness, float metallic)
 {
-    //保证平滑物体也有高光
-    linearRoughness = max(linearRoughness, 0.05); 
-
     float3 H = normalize(L + V);
     float NdotL = saturate(dot(N, L));
     float NdotV = saturate(dot(N, V));
@@ -991,7 +1050,10 @@ float3 PBR(float3 N, float3 V, float3 L, float3 albedo, float3 radiance, float l
     
     float3 diffuse = (1.0f - metallic) * albedo;
     float3 fd = CalculateFdMultiScatter(NdotV, NdotL, NdotH, LdotH, alphaG2, diffuse);
-    float3 fr = CalculateFr(NdotV, NdotL, NdotH, LdotH, alphaG2, f0);
+    //float3 fd = CalculateFd(NdotV, NdotL, LdotH, linearRoughness, diffuse);
+    float3 energyCompensation;
+    float4 lut = GetDGFFromLut(energyCompensation, f0, alpha, NdotV);
+    float3 fr = CalculateFrMultiScatter(NdotV, NdotL, NdotH, LdotH, alphaG2, f0, energyCompensation);
     
     float3 color = (fd + fr) * radiance * NdotL;
     
@@ -1001,7 +1063,7 @@ float3 PBR(float3 N, float3 V, float3 L, float3 albedo, float3 radiance, float l
 //indirect lighting
 float3 IBL(float3 N, float3 V, float3 albedo, float linearRoughness, float metallic)
 {
-    linearRoughness = min(linearRoughness, 0.99);
+    linearRoughness = min(linearRoughness, 0.99); 
     float roughness = LinearRoughnessToRoughness(linearRoughness);
     float3 H = normalize(N);
     float NdotV = max(dot(N, V), 0);

@@ -117,12 +117,14 @@ Shader "HzRP/gbuffer"
                 emission += UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _EmissionTint).rgb;
                 float3 normal = i.normal;
                 float ao = tex2D(_OcclusionMap, i.uv).g;
-
+                
                 
                 float4 metallicSmoothness = tex2D(_MetallicGlossMap, i.uv);
                 float linearSmoothness = metallicSmoothness.a;
                 linearSmoothness *= UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness_global);
-                float linearRoughness = 1 - linearSmoothness;
+                float linearRoughness = LinearSmoothnessToLinearRoughness(linearSmoothness);
+                linearRoughness = ClampMinLinearRoughness(linearRoughness);
+                
                 float metallic = metallicSmoothness.r;
                 metallic *= UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic_global);
                 //if(_Use_Normal_Map) normal = UnpackNormal(tex2D(_BumpMap, i.uv));

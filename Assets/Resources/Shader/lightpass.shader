@@ -67,11 +67,13 @@ Shader "HzRP/lightpass"
                 float3 V = normalize(_WorldSpaceCameraPos.xyz - worldPos.xyz);
                 float3 radiance = _LightColor0.rgb;
 
+                float3 R = reflect(-V, N);
+                float iblOcclusion = ComputeHorizonSpecularOcclusion(R, normal);
+
                 float3 direct = PBR(N, V, L, albedo, radiance, linearRoughness, metallic);
-
                 float3 ambient = IBL(N, V, albedo, linearRoughness, metallic);
-
-                color += ambient * occlusion;
+                
+                color += ambient * min(occlusion, iblOcclusion);
                 color += emission;
 
                 //shadow
