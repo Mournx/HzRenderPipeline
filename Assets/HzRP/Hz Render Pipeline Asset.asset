@@ -12,35 +12,56 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a628081ab573fef4fab52f7f1b77bd82, type: 3}
   m_Name: Hz Render Pipeline Asset
   m_EditorClassIdentifier: 
-  brdfLut: {fileID: 2800000, guid: 06a142499c3bde9459bd168f72d23db4, type: 3}
-  globalEnvMapDiffuse: {fileID: 8900000, guid: 19dd000a66b4767469a67228485d3578, type: 3}
-  globalEnvMapSpecular: {fileID: 8900000, guid: 61484959b4d39764393e58cd7b8d8cd8, type: 3}
-  globalEnvMapRotation: 0
-  skyboxMipLevel: 0
-  skyboxIntensity: 1
-  blueNoiseTex: {fileID: 2800000, guid: ed7ee9d48ed9e564f87258d0a01a8881, type: 3}
-  csmSettings:
-    maxDistance: 1500
-    usingShadowMask: 1
-    level0:
-      shadingPointNormalBias: 0.1
-      depthNormalBias: 0.005
-      pcssSearchRadius: 0.4
-      pcssFilterRadius: 2
-    level1:
-      shadingPointNormalBias: 0.12
-      depthNormalBias: 0.005
-      pcssSearchRadius: 0.75
-      pcssFilterRadius: 7
-    level2:
-      shadingPointNormalBias: 0.1
-      depthNormalBias: 0.005
-      pcssSearchRadius: 1
-      pcssFilterRadius: 1
-    level3:
-      shadingPointNormalBias: 0.1
-      depthNormalBias: 0.005
-      pcssSearchRadius: 1
-      pcssFilterRadius: 1
-  instanceDatas:
-  - {fileID: 11400000, guid: 8b81d4dac8b292747884c476af3211ab, type: 2}
+  settings:
+    enableTaaInEditor: 0
+    enableAutoInstancing: 1
+    enableSRPBatching: 1
+    brdfLut: {fileID: 2800000, guid: 06a142499c3bde9459bd168f72d23db4, type: 3}
+    globalEnvMapDiffuse: {fileID: 8900000, guid: 19dd000a66b4767469a67228485d3578, type: 3}
+    globalEnvMapSpecular: {fileID: 8900000, guid: 61484959b4d39764393e58cd7b8d8cd8, type: 3}
+    globalEnvMapRotation: 0
+    skyboxMipLevel: 0
+    skyboxIntensity: 1
+    blueNoiseTex: {fileID: 2800000, guid: ed7ee9d48ed9e564f87258d0a01a8881, type: 3}
+    csmSettings:
+      maxDistance: 500
+      usingShadowMask: 0
+      level0:
+        shadingPointNormalBias: 0.005
+        depthNormalBias: 0.1
+        pcssSearchRadius: 1
+        pcssFilterRadius: 7
+      level1:
+        shadingPointNormalBias: 0.005
+        depthNormalBias: 0.1
+        pcssSearchRadius: 1
+        pcssFilterRadius: 7
+      level2:
+        shadingPointNormalBias: 0.005
+        depthNormalBias: 0.1
+        pcssSearchRadius: 1
+        pcssFilterRadius: 7
+      level3:
+        shadingPointNormalBias: 0.005
+        depthNormalBias: 0.1
+        pcssSearchRadius: 1
+        pcssFilterRadius: 7
+    instanceDatas: []
+    taaSettings:
+      enabled: 1
+      jitterNum: 8
+      jitterSpread: 0.75
+      minHistoryWeight: 0.6
+      maxHistoryWeight: 0.95
+      minClipScale: 0.5
+      maxClipScale: 1.25
+      staticClipScale: 0
+      minVelocityRejection: 1
+      velocityRejectionScale: 0
+      minDepthRejection: 1
+      resamplingSharpness: 0
+      minSharpness: 0.25
+      maxSharpness: 0.25
+      motionSharpeningFactor: 0
+      minEdgeBlurness: 0
+      invalidHistoryThreshold: 0

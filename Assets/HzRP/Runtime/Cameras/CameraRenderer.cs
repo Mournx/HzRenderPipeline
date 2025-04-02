@@ -4,8 +4,10 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace HzRenderPipeline.Runtime.Cameras {
-    public abstract class CameraRenderer : IDisposable {
+    public abstract class CameraRenderer : IDisposable
+    {
 
+        public static HzRenderPipelineSettings settings => HzRenderPipeline.settings;
         public Camera camera;
         public HzCameraType cameraType;
 
@@ -62,15 +64,13 @@ namespace HzRenderPipeline.Runtime.Cameras {
         protected Matrix4x4 _vpMatrixInvPrev;// nonjittered
         protected Matrix4x4 _nonjitterVPMatrix;
         protected Matrix4x4 _nonjitterVPMatrixInv;
-        
-        public HzRenderPipelineAsset.TemporalAntiAliasingSettings taaSettings;
 
         public CameraRenderer(Camera camera)
         {
             this.camera = camera;
             camera.forceIntoRenderTexture = true;
 
-            for (var i = 0; i < (int)taaSettings.jitterNum; i++)
+            for (var i = 0; i < (int)settings.taaSettings.jitterNum; i++)
                 _jitterPatterns[i] = new Vector2(HaltonSequence.Get((i & 1023) + 1, 2) - .5f, HaltonSequence.Get((i & 1023) + 1, 3) - .5f);
         }
 
@@ -352,6 +352,7 @@ namespace HzRenderPipeline.Runtime.Cameras {
                 case HzCameraType.Reflection: return new GameCameraRenderer(camera);
 #if UNITY_EDITOR     
                 case HzCameraType.SceneView: return new SceneViewCameraRenderer(camera);
+                case HzCameraType.Preview: return new SceneViewCameraRenderer(camera);
 #endif
                 default: throw new InvalidOperationException("Does not support camera type: " + type);
             }
@@ -367,18 +368,18 @@ namespace HzRenderPipeline.Runtime.Cameras {
                 case CameraType.SceneView: return HzCameraType.SceneView;
                 case CameraType.Preview: return HzCameraType.Preview;
 #endif
-                default: throw new InvalidOperationException("Does not support camera type: " + cameraType);
+                default: throw new InvalidOperationException("Does not support camera type: " + camera.cameraType);
             }
         }
-
-        public enum HzCameraType {
-            Game = 1,
-            SceneView = 2,
-            Preview = 4,
-            VR = 8,
-            Reflection = 16
-        }
-        
+    }
+    
+    public enum HzCameraType
+    {
+        Game = 1,
+        SceneView = 2,
+        Preview = 4,
+        VR = 8,
+        Reflection = 16
     }
 }
 

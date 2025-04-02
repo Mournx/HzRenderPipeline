@@ -33,7 +33,7 @@ namespace HzRenderPipeline.Runtime {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int4 Vector2IntToInt4(Vector2Int a, Vector2Int b) => new int4(a.x, a.y, b.x, b.y);
-
+/*
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static PackedRTHandleProperties Pack(this RTHandleProperties properties) {
             return new PackedRTHandleProperties {
@@ -41,7 +41,7 @@ namespace HzRenderPipeline.Runtime {
                 rtSize = new int4(Vector2IntToInt4(properties.currentRenderTargetSize, properties.previousRenderTargetSize)),
                 rtHandleScale = properties.rtHandleScale
             };
-        }
+        }*/
     }
 }
 

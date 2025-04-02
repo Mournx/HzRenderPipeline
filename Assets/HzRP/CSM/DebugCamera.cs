@@ -2,21 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteAlways]
-public class DebugCamera : MonoBehaviour
+namespace HzRenderPipeline.Runtime
 {
-    private CSM csm;
-    public CSMSettings csmSettings;
-
-    void Update()
+    [ExecuteAlways]
+    public class DebugCamera : MonoBehaviour
     {
-        Camera mainCam = Camera.main;
+        private CSM csm;
+        public CSMSettings csmSettings;
 
-        Light light = RenderSettings.sun;
-        Vector3 lightDir = light.transform.rotation * Vector3.forward;
+        void Update()
+        {
+            Camera mainCam = Camera.main;
 
-        if (csm == null) csm = new CSM();
-        csm.Update(mainCam, lightDir, csmSettings);
-        csm.DebugDraw();
+            Light light = RenderSettings.sun;
+            Vector3 lightDir = light.transform.rotation * Vector3.forward;
+
+            if (csm == null) csm = new CSM();
+            csm.Update(mainCam, lightDir, csmSettings);
+            csm.DebugDraw();
+        }
     }
+
 }
