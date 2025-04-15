@@ -12,6 +12,8 @@
 
 #define KILL_MICRO_MOVEMENT
 #define MICRO_MOVEMENT_THRESHOLD (.01f / _ScreenParams.xy)
+
+#define HALF_MAX_MINUS1 65472.0 // (2 - 2^-9) * 2^15
 //////////////////////////////////////////
 // Image Based Lighting Variables       //
 //////////////////////////////////////////
@@ -43,6 +45,7 @@ sampler2D _GT0;
 sampler2D _GT1;
 sampler2D _GT2;
 sampler2D _GT3;
+sampler2D _PreviousColorBuffer;
 
 sampler2D _noiseTex;
 
@@ -64,6 +67,8 @@ float4x4 _vpMatrix;
 float4x4 _vpMatrixInv;
 float4x4 _nonjitterVPMatrix;
 float4x4 _nonjitterVPMatrixInv;
+float4x4 _vpMatrixPrev;
+float4x4 _vpMatrixInvPrev;
 float4x4 _FrustumCornersWS;
 float4x4 _PrevFrustumCornersWS;
 
@@ -107,6 +112,11 @@ float _pcssFilterRadius1;
 float _pcssFilterRadius2;
 float _pcssFilterRadius3;
 
+float _Sharpness;
+float2 _Jitter;
+float2 _LastJitter;
+float4 _FinalBlendParameters;
+float4 _TemporalClipBounding; 
 //////////////////////////////////////////
 //         Cluster Related            //
 //////////////////////////////////////////
@@ -158,6 +168,10 @@ float pow8(float m){
     return pow4*pow4;
 }
 float PositivePow(float base, float power){ return pow(abs(base), power);}
+
+float Min3(float x, float y, float z){
+    return min(x,min(y,z));
+}
 
 float3 RotateAroundYInDegrees(float3 vertex, float degrees) {
     float alpha = degrees * UNITY_PI / 180.0f;
@@ -1054,7 +1068,6 @@ float3 PBR(float3 N, float3 V, float3 L, float3 albedo, float3 radiance, float l
     float3 energyCompensation;
     float4 lut = GetDGFFromLut(energyCompensation, f0, alpha, NdotV);
     float3 fr = CalculateFrMultiScatter(NdotV, NdotL, NdotH, LdotH, alphaG2, f0, energyCompensation);
-    
     float3 color = (fd + fr) * radiance * NdotL;
     
     return color;

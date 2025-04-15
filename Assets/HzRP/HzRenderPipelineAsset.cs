@@ -48,9 +48,8 @@ namespace HzRenderPipeline.Runtime
         [Header("Anti Aliasing")]
         public TemporalAntiAliasingSettings taaSettings = new() {
             enabled = true, jitterNum = JitterNum._8, jitterSpread = .75f, 
-            minHistoryWeight = .6f, maxHistoryWeight = .95f, minClipScale = .5f, maxClipScale = 1.25f, 
-            minVelocityRejection = 1f, velocityRejectionScale = 0f, minDepthRejection = 1f, 
-            minSharpness = .25f, maxSharpness = .25f
+            sharpness = .25f, stationaryBlending =  0.95f, motionBlending = 0.9f,
+            stationaryAABBScale = 1.25f, motionAABBScale = 0.5f
         };
     }
     
@@ -94,48 +93,26 @@ namespace HzRenderPipeline.Runtime
     {
         public bool enabled;
         public JitterNum jitterNum;
+        [Tooltip("The diameter (in texels) inside which jitter samples are spread. Smaller values result in crisper but more aliased output, while larger values result in more stable but blurrier output.")]
         [Range(0f, 1f)] public float jitterSpread;
-        [Range(0f, 1f)] public float minHistoryWeight;
-        [Range(0f, 1f)] public float maxHistoryWeight;
-        [Range(.05f, 6f)] public float minClipScale;
-        [Range(.05f, 6f)] public float maxClipScale;
+        
+        [Tooltip("Controls the amount of sharpening applied to the color buffer. High values may introduce dark-border artifacts.")]
+        [Range(0f, 3f)]
+        public float sharpness;
 
-        [Tooltip("Used for anti-flickering")] [Range(.05f, 12f)]
-        public float staticClipScale;
+        [Tooltip("The blend coefficient for a stationary fragment. Controls the percentage of history sample blended into the final color.")]
+        [Range(0f, 0.99f)]
+        public float stationaryBlending ;
 
-        [Range(0f, 1f)] public float minVelocityRejection;
-        [Range(0f, 10f)] public float velocityRejectionScale;
-
-        [Tooltip("Distance in eye space")] [Range(0f, 50f)]
-        public float minDepthRejection;
-
-        [Range(0f, 2f)] public float resamplingSharpness;
-        [Range(0f, 0.1f)] public float minSharpness;
-        [Range(0f, 0.1f)] public float maxSharpness;
-        [Range(0f, 10f)] public float motionSharpeningFactor;
-        [Range(0f, 0.5f)] public float minEdgeBlurness;
-        [Range(0f, 1f)] public float invalidHistoryThreshold;
-
-        public Vector4 TaaParams0 => new(minHistoryWeight, maxHistoryWeight, minClipScale, maxClipScale);
-
-        public Vector4 TaaParams1 => new(minVelocityRejection, velocityRejectionScale, minDepthRejection,
-            resamplingSharpness);
-
-        public Vector4 TaaParams2 => new(minSharpness, maxSharpness, motionSharpeningFactor, staticClipScale);
-        public Vector4 TaaParams3 => new(minEdgeBlurness, invalidHistoryThreshold, 0, 0);
-
-        public Matrix4x4 TaaParams
-        {
-            get
-            {
-                var mat = new Matrix4x4();
-                mat.SetRow(0, TaaParams0);
-                mat.SetRow(1, TaaParams1);
-                mat.SetRow(2, TaaParams2);
-                mat.SetRow(3, TaaParams3);
-                return mat;
-            }
-        }
+        [Tooltip("The blend coefficient for a fragment with significant motion. Controls the percentage of history sample blended into the final color.")]
+        [Range(0f, 0.99f)]
+        public float motionBlending ;
+        [Tooltip("Screen Space AABB Bounding for stationary state(Larger will take less flask but more ghost)")]
+        [Range(0.05f, 6f)]
+        public float stationaryAABBScale;
+        [Tooltip("Screen Space AABB Bounding for motion state(Larger will take less flask but more ghost)")]
+        [Range(0.05f, 6f)]
+        public float motionAABBScale ;
     }
     public enum JitterNum
     {

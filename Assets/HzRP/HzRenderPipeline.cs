@@ -37,6 +37,8 @@ namespace HzRenderPipeline.Runtime
       instance = this;
       HzRenderPipeline.settings = settings;
       ReversedZ = SystemInfo.usesReversedZBuffer;
+
+      SetupUniformData();
     }
 
     #region Static Methods
@@ -107,7 +109,7 @@ namespace HzRenderPipeline.Runtime
 
         var cameraRenderer = GetCameraRenderer(camera);
         cameraRenderer.PreUpdate();
-        cameraRenderer.SetResolutionAndRatio(screenWidth, screenHeight, 1f, 1f);
+        cameraRenderer.SetResolutionAndRatio(pixelWidth, pixelHeight, 1f, 1f);
         
         BeginCameraRendering(context, camera);
         
@@ -119,6 +121,21 @@ namespace HzRenderPipeline.Runtime
       }
       
       EndFrameRendering(context, cameras);
+    }
+
+    public void SetupUniformData()
+    {
+      Shader.SetGlobalTexture("_GlobalEnvMapDiffuse", settings.globalEnvMapDiffuse);
+      Shader.SetGlobalTexture("_GlobalEnvMapSpecular", settings.globalEnvMapSpecular);
+      Shader.SetGlobalFloat("_GlobalEnvMapRotation", settings.globalEnvMapRotation);
+      Shader.SetGlobalFloat("_SkyboxMipLevel", settings.skyboxMipLevel);
+      Shader.SetGlobalFloat("_SkyboxIntensity", settings.skyboxIntensity);
+      Shader.SetGlobalTexture("_PreintegratedDGFLut", settings.brdfLut);
+      
+      Shader.SetGlobalFloat("_screenWidth", Screen.width);
+      Shader.SetGlobalFloat("_screenHeight", Screen.height);
+      Shader.SetGlobalTexture("_noiseTex", settings.blueNoiseTex);
+      Shader.SetGlobalFloat("_noiseTexResolution", settings.blueNoiseTex.width);
     }
 
     internal CameraRenderer GetCameraRenderer(Camera camera) {
@@ -139,24 +156,23 @@ namespace HzRenderPipeline.Runtime
 
       return renderer;
     }
+  }
+  [Serializable]
+  public struct PackedRTHandleProperties
+  {
+    public int4 viewportSize;
+    public int4 rtSize;
+    public float4 rtHandleScale;
+  }
 
-    [Serializable]
-    public struct PackedRTHandleProperties
-    {
-      public int4 viewportSize;
-      public int4 rtSize;
-      public float4 rtHandleScale;
-    }
-
-    [Serializable]
-    public struct CameraData
-    {
-      public float4 cameraPosWS;
-      public float4 cameraFwdWS;
-      public float4 screenSize;
-      public float4x4 frustumCornersWS;
-      public float4x4 prevFrustumCornersWS;
-      public PackedRTHandleProperties _rtHandleProps;
-    }
+  [Serializable]
+  public struct CameraData
+  {
+    public float4 cameraPosWS;
+    public float4 cameraFwdWS;
+    public float4 screenSize;
+    public float4x4 frustumCornersWS;
+    public float4x4 prevFrustumCornersWS;
+    public PackedRTHandleProperties _rtHandleProps;
   }
 }

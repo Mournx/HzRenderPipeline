@@ -77,6 +77,7 @@ Shader "HzRP/gbuffer"
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
                 float3 normal : NORMAL;
+                float4 preposCS : POSITION1;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             
@@ -104,6 +105,8 @@ Shader "HzRP/gbuffer"
                 float4 albedoST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _MainTex_ST);
                 o.uv = v.uv * albedoST.xy + albedoST.zw;
                 o.normal = UnityObjectToWorldNormal(v.normal);
+                o.preposCS = mul(_vpMatrixPrev, v.vertex);
+                
                 return o;
             }
 
@@ -129,9 +132,10 @@ Shader "HzRP/gbuffer"
                 metallic *= UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic_global);
                 //if(_Use_Normal_Map) normal = UnpackNormal(tex2D(_BumpMap, i.uv));
 
+                float2 motionVec = CalculateMotionVector(i.vertex, i.preposCS);
                 GT0 = color;
                 GT1 = float4(normal*0.5+0.5, 0);
-                GT2 = float4(0, 0, linearRoughness, metallic);
+                GT2 = float4(motionVec, linearRoughness, metallic);
                 GT3 = float4(emission, ao);
             }
             ENDHLSL

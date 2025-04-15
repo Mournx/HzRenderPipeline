@@ -2,6 +2,7 @@ using System;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 
 namespace HzRenderPipeline.Runtime.Cameras {
@@ -19,17 +20,18 @@ namespace HzRenderPipeline.Runtime.Cameras {
         protected bool _enableTaa = true;
         protected string _rendererDesc;
         
-        private RenderTexture gdepth;
-        private RenderTexture[] gbuffers = new RenderTexture[4];
-        private RenderTargetIdentifier[] gbufferID = new RenderTargetIdentifier[4];
-        private RenderTexture hizBuffer;
+        private RTHandle gdepth;
+        private RTHandle[] gbuffers = new RTHandle[4];
+        private RTHandle hizBuffer;
+        private RTHandle historyBuffer;
+        private RTHandle _colorTex;
 
         //阴影设置
         public int shadowMapResolution = 1024;
         private CSM csm;
-        private RenderTexture[] shadowTextures = new RenderTexture[4];
-        private RenderTexture shadowMask;
-        private RenderTexture shadowStrength;
+        private RTHandle[] shadowTextures = new RTHandle[4];
+        private RTHandle shadowMask;
+        private RTHandle shadowStrength;
 
         private ClusterLight clusterLight;
         
@@ -37,61 +39,44 @@ namespace HzRenderPipeline.Runtime.Cameras {
         {
             cameraType = HzCameraType.Game;
             _rendererDesc = "Render Game (" + camera.name + ")";
+            
+            RTHandles.Initialize(InternalRes.x, InternalRes.y);
+            
+            gdepth = RTHandles.Alloc(Vector2.one, depthBufferBits: DepthBits.Depth24, colorFormat: GraphicsFormat.None,
+              dimension: TextureDimension.Tex2D, name: "_gdepth");
+            gbuffers[0] = RTHandles.Alloc(Vector2.one, colorFormat: GraphicsFormat.R16G16B16A16_SFloat, dimension: TextureDimension.Tex2D, name: "_gbuffer0");
+            gbuffers[1] = RTHandles.Alloc(Vector2.one, colorFormat: GraphicsFormat.R8G8B8A8_UNorm, dimension: TextureDimension.Tex2D, name: "_gbuffer1");
+            gbuffers[2] = RTHandles.Alloc(Vector2.one, colorFormat: GraphicsFormat.R16G16B16A16_SFloat, dimension: TextureDimension.Tex2D, name: "_gbuffer2");
+            gbuffers[3] = RTHandles.Alloc(Vector2.one, colorFormat: GraphicsFormat.R32G32B32A32_SFloat, dimension: TextureDimension.Tex2D, name: "_gbuffer3");
 
-            gdepth = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.Depth,
-              RenderTextureReadWrite.Linear);
-            gbuffers[0] = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB32,
-              RenderTextureReadWrite.Linear);
-            gbuffers[1] = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB2101010,
-              RenderTextureReadWrite.Linear);
-            gbuffers[2] = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB64,
-              RenderTextureReadWrite.Linear);
-            gbuffers[3] = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGBFloat,
-              RenderTextureReadWrite.Linear);
-            for (int i = 0; i < 4; i++)
-              gbufferID[i] = gbuffers[i];
-
+            
+            _colorTex = RTHandles.Alloc(Vector2.one, colorFormat: GraphicsFormat.R16G16B16A16_SFloat, dimension: TextureDimension.Tex2D, name: "_colorTex");
+            
             //Hi-z buffer
             int hizSize = Mathf.NextPowerOfTwo(Mathf.Max(Screen.width, Screen.height));
-            hizBuffer = new RenderTexture(hizSize, hizSize, 0, RenderTextureFormat.RHalf);
-            hizBuffer.autoGenerateMips = false;
-            hizBuffer.useMipMap = true;
-            hizBuffer.filterMode = FilterMode.Point;
+            hizBuffer = RTHandles.Alloc(hizSize, hizSize, colorFormat: GraphicsFormat.R16_SFloat,
+              dimension: TextureDimension.Tex2D, useMipMap: true, autoGenerateMips: false, filterMode: FilterMode.Point,
+              name: "_hizBuffer");
 
             //创建阴影贴图
-            shadowMask = new RenderTexture(Screen.width / 4, Screen.height / 4, 0, RenderTextureFormat.R8,
-              RenderTextureReadWrite.Linear);
-            shadowStrength = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.R8,
-              RenderTextureReadWrite.Linear);
-            for (int i = 0; i < 4; i++)
-              shadowTextures[i] = new RenderTexture(shadowMapResolution, shadowMapResolution, 24, RenderTextureFormat.Depth,
-                RenderTextureReadWrite.Linear);
-
+            shadowMask = RTHandles.Alloc(new Vector2(0.25f, 0.25f), colorFormat: GraphicsFormat.R8_UNorm, dimension: TextureDimension.Tex2D, name: "_shadowMask");
+            shadowStrength = RTHandles.Alloc(Vector2.one, colorFormat: GraphicsFormat.R8_UNorm, dimension: TextureDimension.Tex2D, name: "_shadowStrength");
+            for (int i = 0; i < 4; i++) {
+              shadowTextures[i] = RTHandles.Alloc(shadowMapResolution, shadowMapResolution, depthBufferBits: DepthBits.Depth24, dimension: TextureDimension.Tex2D, name: "_shadowTexture" + i);
+            }
+            
             csm = new CSM();
             clusterLight = new ClusterLight();
-            
-            InitBuffers();
-            InitComputeBuffers();
         }
         public override void Setup()
         {
             //设置TAA
-            var jitterNum = (int) settings.taaSettings.jitterNum;
-            var frameNumCycled = _frameNum % jitterNum;
-			
-            var frameParams = new Vector4(_frameNum, jitterNum,  frameNumCycled, frameNumCycled / (float) jitterNum);
-            _cmd.SetGlobalVector("_FrameParams", frameParams);
-			
-            _curJitter = _jitterPatterns[frameNumCycled];
-            _curJitter *= settings.taaSettings.jitterSpread;
-			
-            var taaJitter = new Vector4(_curJitter.x, _curJitter.y, _curJitter.x / InternalRes.x, _curJitter.y / InternalRes.y);
-            _cmd.SetGlobalVector("_JitterParams", taaJitter);
-
+            _cmd.SetGlobalVector("_LastJitter",_curJitter);
             if (_enableTaa && settings.taaSettings.enabled) {
-                ConfigureProjectionMatrix(_curJitter);
+                ConfigureProjectionMatrix(ref _curJitter);
             } else camera.ResetProjectionMatrix();
-
+            _cmd.SetGlobalVector("_Jitter", _curJitter);
+            
             var transform = camera.transform;
             var cameraViewMatrix = camera.worldToCameraMatrix;
             
@@ -135,26 +120,13 @@ namespace HzRenderPipeline.Runtime.Cameras {
             
             _cmd.SetGlobalFloat("_near", _nearPlane);
             _cmd.SetGlobalFloat("_far", _farPlane);
-            _cmd.SetGlobalFloat("_screenWidth", Screen.width);
-            _cmd.SetGlobalFloat("_screenHeight", Screen.height);
-            _cmd.SetGlobalTexture("_noiseTex", settings.blueNoiseTex);
-            _cmd.SetGlobalFloat("_noiseTexResolution", settings.blueNoiseTex.width);
 
             //gbuffer
             _cmd.SetGlobalTexture("_gdepth", gdepth);
             _cmd.SetGlobalTexture("_hizBuffer", hizBuffer);
             for (int i = 0; i < 4; i++)
               _cmd.SetGlobalTexture("_GT" + i, gbuffers[i]);
-
-    
-            _cmd.SetGlobalTexture("_GlobalEnvMapDiffuse", settings.globalEnvMapDiffuse);
-            _cmd.SetGlobalTexture("_GlobalEnvMapSpecular", settings.globalEnvMapSpecular);
-            _cmd.SetGlobalFloat("_GlobalEnvMapRotation", settings.globalEnvMapRotation);
-            _cmd.SetGlobalFloat("_SkyboxMipLevel", settings.skyboxMipLevel);
-            _cmd.SetGlobalFloat("_SkyboxIntensity", settings.skyboxIntensity);
-            _cmd.SetGlobalTexture("_PreintegratedDGFLut", settings.brdfLut);
-
-
+            
             //设置csm
             _cmd.SetGlobalFloat("_orthoDistance", _farPlane - _nearPlane);
             _cmd.SetGlobalFloat("_shadowMapResolution", shadowMapResolution);
@@ -165,7 +137,7 @@ namespace HzRenderPipeline.Runtime.Cameras {
               _cmd.SetGlobalTexture("_shadowtex" + i, shadowTextures[i]);
               _cmd.SetGlobalFloat("_split" + i, csm.splts[i]);
             }
-
+          
             ExecuteCommand();
         }
 
@@ -209,30 +181,22 @@ namespace HzRenderPipeline.Runtime.Cameras {
             // skybox and Gizmos
             _context.DrawSkybox(camera);
             beforePostProcess?.Invoke();
+            
+            //ResolveTAAPass();
+            
             afterLastPass?.Invoke();
-            _context.Submit();
+            Submit();
         }
-
-        public void InitBuffers()
-        {
-            
-        }
-
-        public void InitComputeBuffers()
-        {
-            
-        }
+        
         
         void GbufferPass() {
           BeginSample("gbufferDraw");
           _context.SetupCameraProperties(camera);
-          CommandBuffer cmd = new CommandBuffer();
-          cmd.name = "gbuffer";
 
-          cmd.SetRenderTarget(gbufferID, gdepth);
-          cmd.ClearRenderTarget(true, true, Color.red);
-          _context.ExecuteCommandBuffer(cmd);
-          cmd.Clear();
+          SetRenderTarget(gbuffers, gdepth);
+          
+          _cmd.ClearRenderTarget(true, true, Color.clear);
+          ExecuteCommand();
 
           camera.TryGetCullingParameters(out var cullingParameters);
           var cullingResults = _context.Cull(ref cullingParameters);
@@ -243,23 +207,19 @@ namespace HzRenderPipeline.Runtime.Cameras {
           FilteringSettings filteringSettings = FilteringSettings.defaultValue;
 
           _context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
-          _context.Submit();
-
+          //Submit();
           EndSample("gbufferDraw");
         }
 
         void LightPass() {
           BeginSample("lightingPass");
 
-          CommandBuffer cmd = new CommandBuffer();
-          cmd.name = "lightpass";
-
           Material mat = new Material(Shader.Find("HzRP/lightpass"));
-          cmd.Blit(gbufferID[0], BuiltinRenderTextureType.CameraTarget, mat);
-          _context.ExecuteCommandBuffer(cmd);
-          cmd.Clear();
+          _cmd.Blit(gbuffers[0], _colorTex, mat);
+          _cmd.Blit(_colorTex, BuiltinRenderTextureType.CameraTarget, mat);
+          ExecuteCommand();
 
-          _context.Submit();
+          //Submit();
           EndSample("lightingPass");
         }
 
@@ -282,15 +242,11 @@ namespace HzRenderPipeline.Runtime.Cameras {
             Matrix4x4 p = GL.GetGPUProjectionMatrix(camera.projectionMatrix, false);
             Shader.SetGlobalMatrix("_shadowVpMatrix" + level, p * v);
             Shader.SetGlobalFloat("_orthoWidth" + level, csm.orthoWidths[level]);
-
-            CommandBuffer cmd = new CommandBuffer();
-            cmd.name = "shadowmap" + level;
-
+            
             _context.SetupCameraProperties(camera);
-            cmd.SetRenderTarget(shadowTextures[level]);
-            cmd.ClearRenderTarget(true, true, Color.clear);
-            _context.ExecuteCommandBuffer(cmd);
-            cmd.Clear();
+            _cmd.SetRenderTarget(shadowTextures[level]);
+            _cmd.ClearRenderTarget(true, true, Color.clear);
+            ExecuteCommand();
 
             camera.TryGetCullingParameters(out var cullingParameters);
             var cullingResults = _context.Cull(ref cullingParameters);
@@ -301,7 +257,7 @@ namespace HzRenderPipeline.Runtime.Cameras {
             FilteringSettings filteringSettings = FilteringSettings.defaultValue;
 
             _context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
-            _context.Submit();
+            //Submit();
           }
 
           csm.RevertMainCameraSettings(ref camera);
@@ -312,34 +268,31 @@ namespace HzRenderPipeline.Runtime.Cameras {
       //阴影计算 pass, 输出阴影强度图
       void ShadowMappingPass() {
         BeginSample("ShadowMapping Pass");
-
-        CommandBuffer cmd = new CommandBuffer();
-        cmd.name = "shadowmappingpass";
-
-        RenderTexture tempTex1 = RenderTexture.GetTemporary(Screen.width / 4, Screen.height / 4, 0,
+        
+        RenderTexture tempTex1 = RenderTexture.GetTemporary(InternalRes.x / 4, InternalRes.y / 4, 0,
           RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
-        RenderTexture tempTex2 = RenderTexture.GetTemporary(Screen.width / 4, Screen.height / 4, 0,
+        RenderTexture tempTex2 = RenderTexture.GetTemporary(InternalRes.x / 4, InternalRes.y / 4, 0,
           RenderTextureFormat.R8, RenderTextureReadWrite.Linear);
-        RenderTexture tempTex3 = RenderTexture.GetTemporary(Screen.width, Screen.height, 0, RenderTextureFormat.R8,
+        RenderTexture tempTex3 = RenderTexture.GetTemporary(InternalRes.x, InternalRes.y, 0, RenderTextureFormat.R8,
           RenderTextureReadWrite.Linear);
 
         if (settings.csmSettings.usingShadowMask)
         {
-          cmd.Blit(gbufferID[0], tempTex1, new Material(Shader.Find("HzRP/preshadowmappingpass")));
-          cmd.Blit(tempTex1, tempTex2, new Material(Shader.Find("HzRP/blurNx1")));
-          cmd.Blit(tempTex2, shadowMask, new Material(Shader.Find("HzRP/blur1xN")));
+          _cmd.Blit(gbuffers[0], tempTex1, new Material(Shader.Find("HzRP/preshadowmappingpass")));
+          _cmd.Blit(tempTex1, tempTex2, new Material(Shader.Find("HzRP/blurNx1")));
+          _cmd.Blit(tempTex2, shadowMask, new Material(Shader.Find("HzRP/blur1xN")));
         }
 
-        cmd.Blit(gbufferID[0], tempTex3, new Material(Shader.Find("HzRP/shadowmappingpass")));
-        cmd.Blit(tempTex3, shadowStrength, new Material(Shader.Find("HzRP/blurNxN")));
+        _cmd.Blit(gbuffers[0], tempTex3, new Material(Shader.Find("HzRP/shadowmappingpass")));
+        _cmd.Blit(tempTex3, shadowStrength, new Material(Shader.Find("HzRP/blurNxN")));
 
         RenderTexture.ReleaseTemporary(tempTex1);
         RenderTexture.ReleaseTemporary(tempTex2);
         RenderTexture.ReleaseTemporary(tempTex3);
 
-        _context.ExecuteCommandBuffer(cmd);
-        cmd.Clear();
-        _context.Submit();
+        
+        ExecuteCommand();
+        //Submit();
         
         EndSample("ShadowMapping Pass");
       }
@@ -362,18 +315,15 @@ namespace HzRenderPipeline.Runtime.Cameras {
       {
         BeginSample("InstanceDraw Pass");
 
-        CommandBuffer cmd = new CommandBuffer();
-        cmd.name = "instance gbuffer";
-        cmd.SetRenderTarget(gbufferID, gdepth);
+        _cmd.SetRenderTarget(gbufferID, gdepth);
 
         // Draw Instance
         ComputeShader computeShader = Resources.Load<ComputeShader>("Shader/InstanceCulling");
         for (int i = 0; i < instanceDatas.Length; i++)
           InstanceDraw.Draw(instanceDatas[i], Camera.main, computeShader, _vpMatrixPrev, hizBuffer, ref cmd);
 
-        _context.ExecuteCommandBuffer(cmd);
-        cmd.Clear();
-        _context.Submit();
+        ExecuteCommand();
+        Submit();
 
         EndSample("InstanceDraw Pass");
       }
@@ -382,10 +332,7 @@ namespace HzRenderPipeline.Runtime.Cameras {
       {
         BeginSample("Hiz Pass");
 
-        CommandBuffer cmd = new CommandBuffer();
-        cmd.name = "hiz pass";
-
-        int size = hizBuffer.width;
+        int size = hizBuffer.referenceSize.x;
         int mipNums = (int)Mathf.Log(size, 2);
         RenderTexture[] mips = new RenderTexture[mipNums];
         for (int i = 0; i < mips.Length; i++)
@@ -398,28 +345,74 @@ namespace HzRenderPipeline.Runtime.Cameras {
 
         // Generate mipmap
         Material mat = new Material(Shader.Find("HzRP/hizBlit"));
-        cmd.Blit(gdepth, mips[0]);
+        _cmd.Blit(gdepth, mips[0]);
         for (int i = 1; i < mips.Length; i++)
-          cmd.Blit(mips[i - 1], mips[i], mat);
+          _cmd.Blit(mips[i - 1], mips[i], mat);
 
         for (int i = 0; i < mips.Length; i++)
         {
-          cmd.CopyTexture(mips[i], 0, 0, hizBuffer, 0, i);
+          _cmd.CopyTexture(mips[i], 0, 0, hizBuffer, 0, i);
           RenderTexture.ReleaseTemporary(mips[i]);
         }
 
-        _context.ExecuteCommandBuffer(cmd);
-        cmd.Clear();
-        _context.Submit();
+        ExecuteCommand();
+       // Submit();
         
         EndSample("Hiz Pass");
       }
 
+      void ResolveTAAPass()
+      {
+        BeginSample("TAA Pass");
+
+        var enableProjection = -1f;
+        if (!IsOnFirstFrame && settings.taaSettings.enabled && _enableTaa) enableProjection = 1f;
+        Material mat = new Material(Shader.Find("HzRP/TemporalAntialiasing"));
+
+        const float kMotionAmplification_Blending = 100f * 60f;
+        const float kMotionAmplification_Bounding = 100f * 30f;
+        mat.SetFloat("_EnableReprojection", enableProjection);
+        
+        _cmd.SetGlobalFloat("_Sharpness", settings.taaSettings.sharpness);
+        //_cmd.SetGlobalTexture("_PreviousColorBuffer", prevColor);
+        _cmd.SetGlobalVector("_FinalBlendParameters", new Vector4(settings.taaSettings.stationaryBlending, settings.taaSettings.motionBlending, kMotionAmplification_Blending, 0f));
+        _cmd.SetGlobalVector("_TemporalClipBounding", new Vector4(settings.taaSettings.stationaryAABBScale, settings.taaSettings.motionAABBScale, kMotionAmplification_Bounding, 0f));
+        
+       // _cmd.Blit(BuiltinRenderTextureType.CameraTarget, nextColor, mat, 0);
+
+        
+        ExecuteCommand();
+        //Submit();
+        EndSample("TAA Pass");
+      }
+
+   
       protected override void UpdateRenderScale(bool outputChanged = true) {
+        
         base.UpdateRenderScale(outputChanged);
         if (outputChanged) {
           ResetFrameHistory();
+          RTHandles.SetReferenceSize(InternalRes.x, InternalRes.y);
         }
+      }
+
+      public override void Dispose()
+      {
+        gdepth?.Release();
+        foreach (var gbuffer in gbuffers)
+        {
+          gbuffer?.Release();
+        }
+
+        hizBuffer?.Release();
+        shadowMask?.Release();
+        shadowStrength?.Release();
+        foreach (var shadowTexture in shadowTextures)
+        {
+          shadowTexture?.Release();
+        }
+
+        historyBuffer?.Release();
       }
     }
 }

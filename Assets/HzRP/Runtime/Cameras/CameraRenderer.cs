@@ -69,6 +69,7 @@ namespace HzRenderPipeline.Runtime.Cameras {
         {
             this.camera = camera;
             camera.forceIntoRenderTexture = true;
+            
 
             for (var i = 0; i < (int)settings.taaSettings.jitterNum; i++)
                 _jitterPatterns[i] = new Vector2(HaltonSequence.Get((i & 1023) + 1, 2) - .5f, HaltonSequence.Get((i & 1023) + 1, 3) - .5f);
@@ -99,7 +100,12 @@ namespace HzRenderPipeline.Runtime.Cameras {
 
         public void Submit() => _context.Submit();
 
-        protected virtual void UpdateRenderScale(bool outputChanged = true) => _internalRes = Vector2Int.CeilToInt(OutputRes * Ratio);
+        protected virtual void UpdateRenderScale(bool outputChanged = true)
+        {
+            _internalRes =  Vector2Int.CeilToInt(OutputRes * Ratio);
+            _internalRes.x = Mathf.Max(_internalRes.x, 1);
+            _internalRes.y = Mathf.Max(_internalRes.y, 1);
+        }
 
         public void SetResolutionAndRatio(int w, int h, float x, float y)
         {
@@ -299,17 +305,26 @@ namespace HzRenderPipeline.Runtime.Cameras {
 
         #endregion
         
-        public void ConfigureProjectionMatrix(Vector2 jitter)
+        public void ConfigureProjectionMatrix(ref Vector2 jitter)
         {
             camera.ResetProjectionMatrix();
             camera.nonJitteredProjectionMatrix = camera.projectionMatrix;
-            camera.projectionMatrix = GetJitteredProjectionMatrix(jitter);
-            camera.useJitteredProjectionMatrixForTransparentRendering = true;
+            camera.projectionMatrix = GetJitteredProjectionMatrix(ref jitter);
+            camera.useJitteredProjectionMatrixForTransparentRendering = false;
         }
 
-        public Matrix4x4 GetJitteredProjectionMatrix(Vector2 jitter) => camera.orthographic
-            ? GetJitteredOrthographicProjectionMatrix(jitter)
-            : GetJitteredPerspectiveProjectionMatrix(jitter);
+        public Matrix4x4 GetJitteredProjectionMatrix(ref Vector2 jitter)
+        {
+            var jitterNum = (int) settings.taaSettings.jitterNum;
+            var frameNumCycled = _frameNum % jitterNum;
+			
+            jitter = _jitterPatterns[frameNumCycled];
+            jitter *= settings.taaSettings.jitterSpread;
+            jitter = new Vector2(jitter.x / Screen.width, jitter.y / Screen.height);
+            return camera.orthographic
+                ? GetJitteredOrthographicProjectionMatrix(jitter)
+                : GetJitteredPerspectiveProjectionMatrix(jitter);
+        }
 
         public Matrix4x4 GetJitteredOrthographicProjectionMatrix(Vector2 jitter)
         {

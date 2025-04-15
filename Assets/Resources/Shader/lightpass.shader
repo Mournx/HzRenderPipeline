@@ -78,7 +78,7 @@ Shader "HzRP/lightpass"
 
                 //shadow
                 float shadow = tex2D(_shadowStrength, uv).r;
-                color += direct * shadow;
+                color += direct * shadow ;
 
                 //return float4(color, 1);
 
