@@ -19,11 +19,11 @@ namespace HzRenderPipeline.Runtime.Cameras {
 
         protected bool _enableTaa = true;
         protected string _rendererDesc;
-        
+
+        private readonly BufferedRTHandleSystem _historyBuffers = new();
         private RTHandle gdepth;
         private RTHandle[] gbuffers = new RTHandle[4];
         private RTHandle hizBuffer;
-        private RTHandle historyBuffer;
         private RTHandle _colorTex;
 
         //阴影设置
@@ -40,31 +40,7 @@ namespace HzRenderPipeline.Runtime.Cameras {
             cameraType = HzCameraType.Game;
             _rendererDesc = "Render Game (" + camera.name + ")";
             
-            RTHandles.Initialize(InternalRes.x, InternalRes.y);
-            
-            gdepth = RTHandles.Alloc(Vector2.one, depthBufferBits: DepthBits.Depth24, colorFormat: GraphicsFormat.None,
-              dimension: TextureDimension.Tex2D, name: "_gdepth");
-            gbuffers[0] = RTHandles.Alloc(Vector2.one, colorFormat: GraphicsFormat.R16G16B16A16_SFloat, dimension: TextureDimension.Tex2D, name: "_gbuffer0");
-            gbuffers[1] = RTHandles.Alloc(Vector2.one, colorFormat: GraphicsFormat.R8G8B8A8_UNorm, dimension: TextureDimension.Tex2D, name: "_gbuffer1");
-            gbuffers[2] = RTHandles.Alloc(Vector2.one, colorFormat: GraphicsFormat.R16G16B16A16_SFloat, dimension: TextureDimension.Tex2D, name: "_gbuffer2");
-            gbuffers[3] = RTHandles.Alloc(Vector2.one, colorFormat: GraphicsFormat.R32G32B32A32_SFloat, dimension: TextureDimension.Tex2D, name: "_gbuffer3");
-
-            
-            _colorTex = RTHandles.Alloc(Vector2.one, colorFormat: GraphicsFormat.R16G16B16A16_SFloat, dimension: TextureDimension.Tex2D, name: "_colorTex");
-            
-            //Hi-z buffer
-            int hizSize = Mathf.NextPowerOfTwo(Mathf.Max(Screen.width, Screen.height));
-            hizBuffer = RTHandles.Alloc(hizSize, hizSize, colorFormat: GraphicsFormat.R16_SFloat,
-              dimension: TextureDimension.Tex2D, useMipMap: true, autoGenerateMips: false, filterMode: FilterMode.Point,
-              name: "_hizBuffer");
-
-            //创建阴影贴图
-            shadowMask = RTHandles.Alloc(new Vector2(0.25f, 0.25f), colorFormat: GraphicsFormat.R8_UNorm, dimension: TextureDimension.Tex2D, name: "_shadowMask");
-            shadowStrength = RTHandles.Alloc(Vector2.one, colorFormat: GraphicsFormat.R8_UNorm, dimension: TextureDimension.Tex2D, name: "_shadowStrength");
-            for (int i = 0; i < 4; i++) {
-              shadowTextures[i] = RTHandles.Alloc(shadowMapResolution, shadowMapResolution, depthBufferBits: DepthBits.Depth24, dimension: TextureDimension.Tex2D, name: "_shadowTexture" + i);
-            }
-            
+            InitBuffers();
             csm = new CSM();
             clusterLight = new ClusterLight();
         }
@@ -115,8 +91,8 @@ namespace HzRenderPipeline.Runtime.Cameras {
             _frustumCornersWS.SetRow(1, new float4(bottomLeft, .0f));
             _frustumCornersWS.SetRow(2, new float4(topRight, .0f));
             _frustumCornersWS.SetRow(3, zBufferParams);
-            
-			      SetupCameraProperties();
+          
+            SetupCameraProperties();
             
             _cmd.SetGlobalFloat("_near", _nearPlane);
             _cmd.SetGlobalFloat("_far", _farPlane);
@@ -157,6 +133,7 @@ namespace HzRenderPipeline.Runtime.Cameras {
             _context = context;
             _cmd = CommandBufferPool.Get(_rendererDesc);
             
+            GetBuffers();
             Setup();
 
             beforeCull?.Invoke();
@@ -386,33 +363,80 @@ namespace HzRenderPipeline.Runtime.Cameras {
         EndSample("TAA Pass");
       }
 
+      internal void InitBuffers() {
+        _historyBuffers.AllocBuffer(ShaderKeywordManager.COLOR_TEXTURE,
+          (system, i) => system.Alloc(size => InternalRes, colorFormat: GraphicsFormat.R16G16B16A16_SFloat,
+            filterMode: FilterMode.Bilinear, name: "ColorTex"), 1);
+        _historyBuffers.AllocBuffer(ShaderKeywordManager.GBUFFER_0_TEXTURE,
+          (system, i) =>system.Alloc(size => InternalRes, colorFormat: GraphicsFormat.R16G16B16A16_SFloat, name:"Gbuffer0"), 1);
+        _historyBuffers.AllocBuffer(ShaderKeywordManager.GBUFFER_1_TEXTURE,
+          (system, i) =>system.Alloc(size => InternalRes, colorFormat: GraphicsFormat.R8G8B8A8_UNorm, name:"Gbuffer1"), 1);
+        _historyBuffers.AllocBuffer(ShaderKeywordManager.GBUFFER_2_TEXTURE,
+          (system, i) =>system.Alloc(size => InternalRes, colorFormat: GraphicsFormat.R16G16B16A16_SFloat, name:"Gbuffer2"), 1);
+        _historyBuffers.AllocBuffer(ShaderKeywordManager.GBUFFER_3_TEXTURE,
+          (system, i) => system.Alloc(size => InternalRes, colorFormat: GraphicsFormat.R32G32B32A32_SFloat, name: "Gbuffer3"), 1);
+        _historyBuffers.AllocBuffer(ShaderKeywordManager.GDEPTH_TEXTURE,
+          (system, i)=>system.Alloc(size=>InternalRes, colorFormat: GraphicsFormat.None, depthBufferBits: DepthBits.Depth24, name:"GDepth"), 1);
+        int hizSize = Mathf.NextPowerOfTwo(Mathf.Max(Mathf.Max(InternalRes.x , InternalRes.y), 1));
+        _historyBuffers.AllocBuffer(ShaderKeywordManager.HIZ_BUFFER_TEXTURE,
+          (system, i) =>system.Alloc(hizSize, hizSize, colorFormat: GraphicsFormat.R16_SFloat,useMipMap:true, autoGenerateMips:false, filterMode: FilterMode.Point, name: "HizBuffer"), 1);
+        _historyBuffers.AllocBuffer(ShaderKeywordManager.SHADOW_MASK_TEXTURE,
+          (system, i)=>system.Alloc(Mathf.Max(Mathf.RoundToInt(0.25f * InternalRes.x), 1), Mathf.Max(Mathf.RoundToInt(0.25f * InternalRes.y), 1), colorFormat: GraphicsFormat.R8_UNorm, name: "ShadowMask"), 1);
+        _historyBuffers.AllocBuffer(ShaderKeywordManager.SHADOW_STRENGTH_TEXTURE,
+          (system, i)=>system.Alloc(InternalRes, colorFormat: GraphicsFormat.R8_UNorm, name: "ShadowStrength"), 1);
+
+        InitScreenIndependentBuffers();
+      }
+
+      internal void InitScreenIndependentBuffers() {
+        _historyBuffers.AllocBuffer(ShaderKeywordManager.SHADOW_0_TEXTURE,
+          (system, i)=>system.Alloc(shadowMapResolution, shadowMapResolution, colorFormat: GraphicsFormat.None, depthBufferBits: DepthBits.Depth24, name:"SHADOW0"), 1);
+        _historyBuffers.AllocBuffer(ShaderKeywordManager.SHADOW_1_TEXTURE,
+          (system, i)=>system.Alloc(shadowMapResolution, shadowMapResolution, colorFormat: GraphicsFormat.None, depthBufferBits: DepthBits.Depth24, name:"SHADOW1"), 1);
+        _historyBuffers.AllocBuffer(ShaderKeywordManager.SHADOW_2_TEXTURE,
+          (system, i)=>system.Alloc(shadowMapResolution, shadowMapResolution, colorFormat: GraphicsFormat.None, depthBufferBits: DepthBits.Depth24, name:"SHADOW2"), 1);
+        _historyBuffers.AllocBuffer(ShaderKeywordManager.SHADOW_3_TEXTURE,
+          (system, i)=>system.Alloc(shadowMapResolution, shadowMapResolution, colorFormat: GraphicsFormat.None, depthBufferBits: DepthBits.Depth24, name:"SHADOW3"), 1);
+      }
+
+      internal void GetBuffers()
+      {
+        _historyBuffers.SwapAndSetReferenceSize(OutputRes.x, OutputRes.y);
+
+        _colorTex = _historyBuffers.GetFrameRT(ShaderKeywordManager.COLOR_TEXTURE, 0);
+        gbuffers[0] = _historyBuffers.GetFrameRT(ShaderKeywordManager.GBUFFER_0_TEXTURE, 0);
+        gbuffers[1] = _historyBuffers.GetFrameRT(ShaderKeywordManager.GBUFFER_1_TEXTURE, 0);
+        gbuffers[2] = _historyBuffers.GetFrameRT(ShaderKeywordManager.GBUFFER_2_TEXTURE, 0);
+        gbuffers[3] = _historyBuffers.GetFrameRT(ShaderKeywordManager.GBUFFER_3_TEXTURE, 0);
+        gdepth = _historyBuffers.GetFrameRT(ShaderKeywordManager.GDEPTH_TEXTURE, 0);
+        hizBuffer = _historyBuffers.GetFrameRT(ShaderKeywordManager.HIZ_BUFFER_TEXTURE, 0);
+        shadowMask = _historyBuffers.GetFrameRT(ShaderKeywordManager.SHADOW_MASK_TEXTURE, 0);
+        shadowStrength = _historyBuffers.GetFrameRT(ShaderKeywordManager.SHADOW_STRENGTH_TEXTURE, 0);
+        shadowTextures[0] = _historyBuffers.GetFrameRT(ShaderKeywordManager.SHADOW_0_TEXTURE, 0);
+        shadowTextures[1] = _historyBuffers.GetFrameRT(ShaderKeywordManager.SHADOW_1_TEXTURE, 0);
+        shadowTextures[2] = _historyBuffers.GetFrameRT(ShaderKeywordManager.SHADOW_2_TEXTURE, 0);
+        shadowTextures[3] = _historyBuffers.GetFrameRT(ShaderKeywordManager.SHADOW_3_TEXTURE, 0);
+      }
+
+      internal void ResetBufferSize() {
+        _historyBuffers.ResetReferenceSize(OutputRes.x, OutputRes.y);
+      }
    
       protected override void UpdateRenderScale(bool outputChanged = true) {
         
         base.UpdateRenderScale(outputChanged);
         if (outputChanged) {
           ResetFrameHistory();
-          RTHandles.SetReferenceSize(InternalRes.x, InternalRes.y);
+          ResetBufferSize();
         }
       }
 
-      public override void Dispose()
-      {
-        gdepth?.Release();
-        foreach (var gbuffer in gbuffers)
-        {
-          gbuffer?.Release();
+      public override void Dispose() {
+        base.Dispose();
+        if (_historyBuffers != null) {
+          _historyBuffers.ReleaseAll();
+          _historyBuffers.Dispose();
         }
-
-        hizBuffer?.Release();
-        shadowMask?.Release();
-        shadowStrength?.Release();
-        foreach (var shadowTexture in shadowTextures)
-        {
-          shadowTexture?.Release();
-        }
-
-        historyBuffer?.Release();
       }
     }
 }
