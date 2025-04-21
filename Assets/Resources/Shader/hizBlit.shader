@@ -13,8 +13,6 @@ Shader "HzRP/hizBlit"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            
-            #include "HzRPCommon.cginc"         
 
             struct appdata
             {

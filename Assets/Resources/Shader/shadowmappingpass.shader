@@ -40,7 +40,7 @@ Shader "HzRP/shadowmappingpass"
             float frag (v2f i) : SV_Target
             {
                 float2 uv = i.uv;
-                float3  normal = tex2D(_GT1, uv).rgb * 2 - 1;
+                float3  normal = SampleNormalWS(uv);
                 float d = UNITY_SAMPLE_DEPTH(tex2D(_gdepth, uv));
                 float d_lin = Linear01Depth(d);
 

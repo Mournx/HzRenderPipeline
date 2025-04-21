@@ -45,7 +45,7 @@ Shader "HzRP/lightpass"
                 float4 GT3 = tex2D(_GT3, uv);
 
                 float3 albedo = tex2D(_GT0, uv).rgb;
-                float3 normal = tex2D(_GT1, uv).rgb * 2 - 1;
+                float3 normal = SampleNormalWS(uv);
                 float2 motionVec = GT2.rg;
                 float linearRoughness = GT2.b;
                 float metallic = GT2.a;

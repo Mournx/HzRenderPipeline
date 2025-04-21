@@ -24,9 +24,7 @@ namespace HzRenderPipeline.Runtime
     private static readonly List<KeyValuePair<Camera, CameraRenderer>> tempCameras = new List<KeyValuePair<Camera, CameraRenderer>>(10);
 
     private static readonly Dictionary<CommandBuffer, Action> independentCMDRequests = new Dictionary<CommandBuffer, Action>();
-
-    public bool IsOnFirstFrame => _frameNum == 1; // start at 1
-    private int _frameNum;
+    
     public HzRenderPipeline(HzRenderPipelineSettings settings)
     {
       QualitySettings.vSyncCount = 0;
@@ -97,9 +95,7 @@ namespace HzRenderPipeline.Runtime
       
       var screenWidth = Screen.width;
       var screenHeight = Screen.height;
-      
-      _frameNum++;
-      
+
       BeginFrameRendering(context, cameras);
 
       foreach (var camera in cameras)

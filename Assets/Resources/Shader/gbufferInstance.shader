@@ -89,8 +89,7 @@ Shader "HzRP/gbufferInstance"
             };
 
             float4 _MainTex_ST;
-
-            sampler2D _MainTex;
+            
             sampler2D _MetallicGlossMap;
             sampler2D _EmissionMap;
             sampler2D _OcclusionMap;
@@ -153,12 +152,12 @@ Shader "HzRP/gbufferInstance"
             void frag (
                 v2f i,
                 out float4 GT0 : SV_Target0,
-                out float4 GT1 : SV_Target1,
+                out float2 GT1 : SV_Target1,
                 out float4 GT2 : SV_Target2,
                 out float4 GT3 : SV_Target3
             )
             {
-                float4 color = tex2D(_MainTex, i.uv);
+                float4 color = _MainTex.Sample(sampler_MainTex, i.uv);
                 float3 emission = tex2D(_EmissionMap, i.uv).rgb;
                 float3 normal = i.normal;
                 float metallic = _Metallic_global;
@@ -174,7 +173,7 @@ Shader "HzRP/gbufferInstance"
                 //if(_Use_Normal_Map) normal = UnpackNormal(tex2D(_BumpMap, i.uv));
 
                 GT0 = color;
-                GT1 = float4(normal*0.5+0.5, 0);
+                GT1 = EncodeNormalComplex(normal);
                 GT2 = float4(0, 0, roughness,metallic);
                 GT3 = float4(emission, ao);
             }

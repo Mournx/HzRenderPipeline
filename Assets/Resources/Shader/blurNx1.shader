@@ -36,8 +36,6 @@ Shader "HzRP/blurNx1"
                 return o;
             }           
 
-            sampler2D _MainTex;
-
             float frag (v2f i) : SV_Target
             {
                 float2 uv = i.uv;
@@ -57,7 +55,7 @@ Shader "HzRP/blurNx1"
                     float2 offset = float2(i, 0) / float2(_screenWidth / 4, _screenHeight / 4);
                     float2 uv_sample = uv + offset * radius;
 
-                    shadow += tex2D(_MainTex, uv_sample).r;
+                    shadow +=  _MainTex.Sample(sampler_point_clamp, uv_sample).r;
                     weight += 1;
                 }
                 shadow /= weight;

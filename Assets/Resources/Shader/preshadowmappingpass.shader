@@ -46,7 +46,7 @@ Shader "HzRP/preshadowmappingpass"
                     {
                         float2 offset = float2(i, j) / float2(_screenWidth, _screenHeight);
                         float2 uv_Offset = uv + offset;
-                        float3 normal = tex2D(_GT1, uv_Offset).rgb * 2 - 1;
+                        float3 normal = SampleNormalWS(uv_Offset);
                         float d = UNITY_SAMPLE_DEPTH(tex2D(_gdepth, uv_Offset));
                         float d_lin = Linear01Depth(d);
 

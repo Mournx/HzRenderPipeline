@@ -315,15 +315,17 @@ namespace HzRenderPipeline.Runtime.Cameras {
 
         public Matrix4x4 GetJitteredProjectionMatrix(ref Vector2 jitter)
         {
+            Matrix4x4 cameraProj;
             var jitterNum = (int) settings.taaSettings.jitterNum;
             var frameNumCycled = _frameNum % jitterNum;
 			
             jitter = _jitterPatterns[frameNumCycled];
             jitter *= settings.taaSettings.jitterSpread;
-            jitter = new Vector2(jitter.x / Screen.width, jitter.y / Screen.height);
-            return camera.orthographic
+            cameraProj = camera.orthographic
                 ? GetJitteredOrthographicProjectionMatrix(jitter)
                 : GetJitteredPerspectiveProjectionMatrix(jitter);
+            jitter = new Vector2(jitter.x / InternalRes.x, jitter.y / InternalRes.y);
+            return cameraProj;
         }
 
         public Matrix4x4 GetJitteredOrthographicProjectionMatrix(Vector2 jitter)

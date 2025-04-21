@@ -51,17 +51,8 @@ MonoBehaviour:
       enabled: 1
       jitterNum: 8
       jitterSpread: 0.75
-      minHistoryWeight: 0.6
-      maxHistoryWeight: 0.95
-      minClipScale: 0.5
-      maxClipScale: 1.25
-      staticClipScale: 0
-      minVelocityRejection: 1
-      velocityRejectionScale: 0
-      minDepthRejection: 1
-      resamplingSharpness: 0
-      minSharpness: 0.25
-      maxSharpness: 0.25
-      motionSharpeningFactor: 0
-      minEdgeBlurness: 0
-      invalidHistoryThreshold: 0
+      sharpness: 0.2
+      stationaryBlending: 0.95
+      motionBlending: 0.9
+      stationaryAABBScale: 1.25
+      motionAABBScale: 0.5

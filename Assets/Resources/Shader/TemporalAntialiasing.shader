@@ -5,7 +5,7 @@ Shader "HzRP/TemporalAntialiasing"
         _MainTex ("Texture", 2D) = "white" {}
     }
     CGINCLUDE
-
+        #include "HzRPCommon.cginc"
         struct appdata
 		{
 			float4 vertex : POSITION;
@@ -21,12 +21,10 @@ Shader "HzRP/TemporalAntialiasing"
 		v2f vert(appdata v)
 		{
 			v2f o;
-			o.vertex = v.vertex;
-			o.texcoord = v.texcoord;
+			o.vertex = UnityObjectToClipPos(v.vertex);
+		    o.texcoord = v.texcoord;
 			return o;
 		};
-            
-        #include "HzRPCommon.cginc"
             
         float Luma4(float3 Color)
         {
@@ -137,19 +135,19 @@ Shader "HzRP/TemporalAntialiasing"
 
     //////////////////TemporalClamp
             float2 PrevCoord = (i.texcoord - velocity);
-            float4 MiddleCenter = tex2D(_GT0, uv);
-            if (PrevCoord.x > 1 || PrevCoord.y > 1 || PrevCoord.x < 0 || PrevCoord.y < 0) {
+            float4 MiddleCenter = _MainTex.Sample(sampler_linear_clamp, uv);
+            if (PrevCoord.x > 1 || PrevCoord.y > 1 || PrevCoord.x < 0 || PrevCoord.y < 0 || _EnableReprojection < .0f) {
                 return float4(MiddleCenter.xyz, 1);
             }
             
-            float4 TopLeft = tex2D(_GT0, uv+int2(-1, -1)*(_ScreenParams.zw - 1));
-            float4 TopCenter = tex2D(_GT0, uv+int2(0, -1)*(_ScreenParams.zw - 1));
-            float4 TopRight = tex2D(_GT0, uv+int2(1, -1)*(_ScreenParams.zw - 1));
-            float4 MiddleLeft = tex2D(_GT0, uv+int2(-1, 0)*(_ScreenParams.zw - 1));
-            float4 MiddleRight = tex2D(_GT0, uv+int2(1, 0)*(_ScreenParams.zw - 1));
-            float4 BottomLeft = tex2D(_GT0, uv+int2(-1, 1)*(_ScreenParams.zw - 1));
-            float4 BottomCenter = tex2D(_GT0, uv+int2(0, 1)*(_ScreenParams.zw - 1));
-            float4 BottomRight = tex2D(_GT0, uv+int2(1, 1)*(_ScreenParams.zw - 1));
+            float4 TopLeft = _MainTex.SampleLevel(sampler_linear_clamp, uv, 0, int2(-1, -1));
+            float4 TopCenter = _MainTex.SampleLevel(sampler_linear_clamp, uv, 0, int2(0, -1));
+            float4 TopRight = _MainTex.SampleLevel(sampler_linear_clamp, uv, 0, int2(1, -1));
+            float4 MiddleLeft = _MainTex.SampleLevel(sampler_linear_clamp, uv, 0, int2(-1, 0));
+            float4 MiddleRight = _MainTex.SampleLevel(sampler_linear_clamp, uv, 0, int2(1, 0));
+            float4 BottomLeft = _MainTex.SampleLevel(sampler_linear_clamp, uv, 0, int2(-1, 1));
+            float4 BottomCenter = _MainTex.SampleLevel(sampler_linear_clamp, uv, 0, int2(0, 1));
+            float4 BottomRight = _MainTex.SampleLevel(sampler_linear_clamp, uv, 0, int2(1, 1));
             float SampleWeights[9];
             SampleWeights[0] = HdrWeight4(TopLeft.rgb, ExposureScale);
             SampleWeights[1] = HdrWeight4(TopCenter.rgb, ExposureScale);

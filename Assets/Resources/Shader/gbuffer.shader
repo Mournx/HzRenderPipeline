@@ -25,7 +25,7 @@ Shader "HzRP/gbuffer"
             #pragma vertex vert
             #pragma fragment frag
 
-           #include "HzRPCommon.cginc"
+            #include "HzRPCommon.cginc"
 
             struct v2f
             {
@@ -45,7 +45,7 @@ Shader "HzRP/gbuffer"
             {
                 float d = i.depth.x / i.depth.y;
             #if defined(UNITY_REVERSED_Z)
-            d = 1.0 - d;
+                 d = 1.0 - d;
             #endif
                 fixed4 c = EncodeFloatRGBA(d);
                 return c;
@@ -81,7 +81,6 @@ Shader "HzRP/gbuffer"
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             
-            sampler2D _MainTex;
             sampler2D _MetallicGlossMap;
             sampler2D _EmissionMap;
             sampler2D _OcclusionMap;
@@ -110,11 +109,11 @@ Shader "HzRP/gbuffer"
                 return o;
             }
 
-            void frag(v2f i, out float4 GT0 : SV_Target0, out float4 GT1 : SV_Target1, out float4 GT2 : SV_Target2, out float4 GT3 : SV_Target3) 
+            void frag(v2f i, out float4 GT0 : SV_Target0, out float2 GT1 : SV_Target1, out float4 GT2 : SV_Target2, out float4 GT3 : SV_Target3) 
             {
                 UNITY_SETUP_INSTANCE_ID(i);
                 
-                float4 color = tex2D(_MainTex, i.uv);
+                float4 color = _MainTex.Sample(sampler_MainTex, i.uv);
                 color *= UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _AlbedoTint);
                 float3 emission = tex2D(_EmissionMap, i.uv).rgb;
                 emission += UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _EmissionTint).rgb;
@@ -134,7 +133,7 @@ Shader "HzRP/gbuffer"
 
                 float2 motionVec = CalculateMotionVector(i.vertex, i.preposCS);
                 GT0 = color;
-                GT1 = float4(normal*0.5+0.5, 0);
+                GT1 = EncodeNormalComplex(normal);
                 GT2 = float4(motionVec, linearRoughness, metallic);
                 GT3 = float4(emission, ao);
             }

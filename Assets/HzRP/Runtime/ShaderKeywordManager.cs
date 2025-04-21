@@ -6,6 +6,7 @@ namespace HzRenderPipeline.Runtime {
         #region Render Targets
 
         public static readonly int COLOR_TEXTURE = Shader.PropertyToID("_colorTex");
+        public static readonly int DISPLAY_TEXTURE = Shader.PropertyToID("_DisplayTex");
         public static readonly int GBUFFER_0_TEXTURE = Shader.PropertyToID("_GT0");
         public static readonly int GBUFFER_1_TEXTURE = Shader.PropertyToID("_GT1");
         public static readonly int GBUFFER_2_TEXTURE = Shader.PropertyToID("_GT2");

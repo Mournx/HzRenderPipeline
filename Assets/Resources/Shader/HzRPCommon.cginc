@@ -27,6 +27,7 @@ float _SkyboxIntensity;
 //////////////////////////////////////////
 
 sampler sampler_linear_clamp;
+sampler sampler_point_clamp;
 
 Texture2D _PreintegratedDGFLut;
 sampler sampler_PreintegratedDGFLut;
@@ -34,6 +35,9 @@ Texture2D _PreintegratedDLut;
 sampler sampler_PreintegratedDLut;
 Texture2D _PreintegratedGFLut;
 sampler sampler_PreintegratedGFLut;
+Texture2D _MainTex;
+sampler sampler_MainTex;
+float4 _MainTex_TexelSize;
 
 TextureCube _GlobalEnvMapSpecular;
 sampler sampler_GlobalEnvMapSpecular;
@@ -112,6 +116,7 @@ float _pcssFilterRadius1;
 float _pcssFilterRadius2;
 float _pcssFilterRadius3;
 
+float _EnableReprojection;
 float _Sharpness;
 float2 _Jitter;
 float2 _LastJitter;
@@ -258,6 +263,40 @@ float2 CalculateMotionVector(float4 posCS, float4 prevPosCS){
     // mv.x = -mv.x;
 
     return mv * .5f;
+}
+
+float2 PackNormalOctQuadEncode(float3 n)
+{
+    n *= rcp(max(dot(abs(n), 1.0), 1e-6));
+    float t = saturate(-n.z);
+    return n.xy + float2(n.x >= 0.0 ? t : -t, n.y >= 0.0 ? t : -t);
+}
+float3 UnpackNormalOctQuadEncode(float2 f)
+{
+    float3 n = float3(f.x, f.y, 1.0 - abs(f.x) - abs(f.y));
+
+    //float2 val = 1.0 - abs(n.yx);
+    //n.xy = (n.zz < float2(0.0, 0.0) ? (n.xy >= 0.0 ? val : -val) : n.xy);
+
+    // Optimized version of above code:
+    float t = max(-n.z, 0.0);
+    n.xy += float2(n.x >= 0.0 ? -t : t, n.y >= 0.0 ? -t : t);
+
+    return normalize(n);
+}
+// Convert Normal from [-1, 1] to [0, 1]
+float2 EncodeNormalComplex(float3 N)
+{
+    return PackNormalOctQuadEncode(N) * .5f + .5f;
+}
+
+// Convert Normal from [0, 1] to [-1, 1]
+float3 DecodeNormalComplex(float2 N)
+{
+    return UnpackNormalOctQuadEncode(N * 2.0f - 1.0f);
+}
+float3 SampleNormalWS(float2 uv){
+    return DecodeNormalComplex(tex2D(_GT1, uv).rg);
 }
 
 /*

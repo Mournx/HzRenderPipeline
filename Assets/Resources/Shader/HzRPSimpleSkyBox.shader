@@ -6,6 +6,7 @@ Shader "HzRP/HzRPSimpleSkybox" {
         
             Cull Off
             ZWrite Off
+            ZTest LEqual
         
             Tags {
                 "Queue" = "Background"
