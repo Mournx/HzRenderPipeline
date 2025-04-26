@@ -172,9 +172,9 @@ float pow8(float m){
     float pow4 = pow2*pow2;
     return pow4*pow4;
 }
-float PositivePow(float base, float power){ return pow(abs(base), power);}
+float positivePow(float base, float power){ return pow(abs(base), power);}
 
-float Min3(float x, float y, float z){
+float min3(float x, float y, float z){
     return min(x,min(y,z));
 }
 
@@ -789,7 +789,7 @@ float CharlieL(float x, float r){
     float d = lerp(-1.27393f, -1.97760f, r);
     float e = lerp(-4.85967f, -4.32054f, r);
 
-    return a / (1.0f + b * PositivePow(x, c)) + d * x + e;
+    return a / (1.0f + b * positivePow(x, c)) + d * x + e;
 }
 
 float SoftenCharlie(float base, float cos_theta){

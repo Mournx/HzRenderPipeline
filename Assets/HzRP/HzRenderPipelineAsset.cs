@@ -51,6 +51,9 @@ namespace HzRenderPipeline.Runtime
             sharpness = .25f, stationaryBlending =  0.95f, motionBlending = 0.9f,
             stationaryAABBScale = 1.25f, motionAABBScale = 0.5f
         };
+        [Header("Color Grading & Tonemapping")]
+        public ColorGradingSettings colorSettings = new () { colorFilter = Color.white };
+        public TonemappingSettings  tonemappingSettings = new () { tonemappingType = TonemappingType.ACES };
     }
     
     [Serializable]
@@ -114,11 +117,35 @@ namespace HzRenderPipeline.Runtime
         [Range(0.05f, 6f)]
         public float motionAABBScale ;
     }
+
+    [Serializable]
+    public struct ColorGradingSettings
+    {
+        [Range(-10f, 10f)] public float postExposure;
+        [Range(-100f, 100f)] public float contrast;
+        [ColorUsage(false, true)] public Color colorFilter;
+        [Range(-180f, 180f)] public float hueShift;
+        [Range(-100f, 100f)] public float saturation;
+    }
+
+    [Serializable]
+    public struct TonemappingSettings
+    {
+        public TonemappingType tonemappingType;
+        public Shader tonemappingShader;
+    }
     public enum JitterNum
     {
         _2 = 2,
         _4 = 4,
         _8 = 8,
         _16 = 16
+    }
+    public enum TonemappingType
+    {
+       None = 0,
+       Reinhard = 1,
+       Neutral = 2,
+       ACES = 3
     }
 }

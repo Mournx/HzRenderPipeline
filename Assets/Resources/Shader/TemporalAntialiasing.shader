@@ -89,7 +89,7 @@ Shader "HzRP/TemporalAntialiasing"
             float3 offset = color.rgb - center;
 
             float3 ts = abs(extents / (offset + 0.0001));
-            float t = saturate(Min3(ts.x, ts.y, ts.z));
+            float t = saturate(min3(ts.x, ts.y, ts.z));
             color.rgb = center + offset * t;
             return color;
         }

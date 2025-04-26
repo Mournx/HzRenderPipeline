@@ -21,5 +21,13 @@ namespace HzRenderPipeline.Runtime {
         public static readonly int SHADOW_3_TEXTURE = Shader.PropertyToID("_shadowtex3");
 
         #endregion
+        
+        #region Color Grading & Tonemapping
+
+        public static readonly int TONEMAPPING_TYPE = Shader.PropertyToID("_TonemappingType");
+        public static readonly int COLOR_GRADE_PARAMS = Shader.PropertyToID("_ColorGradeParams");
+        public static readonly int COLOR_FILTER = Shader.PropertyToID("_ColorFilter");
+
+        #endregion
     }
 }

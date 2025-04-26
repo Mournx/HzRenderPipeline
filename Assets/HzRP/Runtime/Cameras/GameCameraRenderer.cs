@@ -164,6 +164,7 @@ namespace HzRenderPipeline.Runtime.Cameras {
             beforePostProcess?.Invoke();
             
             ResolveTAAPass();
+            TonemapPass();
             
             afterLastPass?.Invoke();
             Submit();
@@ -361,14 +362,35 @@ namespace HzRenderPipeline.Runtime.Cameras {
         _cmd.SetGlobalVector("_TemporalClipBounding", new Vector4(settings.taaSettings.stationaryAABBScale, settings.taaSettings.motionAABBScale, kMotionAmplification_Bounding, 0f));
         
         _cmd.Blit(BuiltinRenderTextureType.CameraTarget, _colorTex, mat);
-
-        if(cameraType == HzCameraType.SceneView)
-          _cmd.Blit(_colorTex, BuiltinRenderTextureType.CameraTarget);
-       else
-         _cmd.Blit(_colorTex, BuiltinRenderTextureType.CameraTarget, new Vector2(1, -1), new Vector2(0, 1));
+        
         ExecuteCommand();
         //Submit();
         EndSample("TAA Pass");
+      }
+
+      void TonemapPass()
+      {
+        BeginSample("Tonemap Pass");
+        var colorGradeParams = new Vector4(
+          Mathf.Pow(2f, settings.colorSettings.postExposure),
+          settings.colorSettings.contrast * .01f + 1f,
+          settings.colorSettings.hueShift * (1f / 360f),
+          settings.colorSettings.saturation * .01f + 1f);
+
+        Material mat = new Material(settings.tonemappingSettings.tonemappingShader);
+        mat.SetInteger(ShaderKeywordManager.TONEMAPPING_TYPE, (int)settings.tonemappingSettings.tonemappingType);
+        mat.SetVector(ShaderKeywordManager.COLOR_GRADE_PARAMS, colorGradeParams);
+        mat.SetColor(ShaderKeywordManager.COLOR_FILTER, settings.colorSettings.colorFilter.linear);
+        
+        _cmd.Blit(_colorTex, _displayTex, mat);
+        
+        if(cameraType == HzCameraType.SceneView)
+          _cmd.Blit(_displayTex, BuiltinRenderTextureType.CameraTarget);
+        else
+          _cmd.Blit(_displayTex, BuiltinRenderTextureType.CameraTarget, new Vector2(1, -1), new Vector2(0, 1));
+       
+        ExecuteCommand();
+        EndSample("Tonemap Pass");
       }
       
       internal void InitBuffers() {

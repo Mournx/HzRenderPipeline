@@ -153,22 +153,4 @@ namespace HzRenderPipeline.Runtime
       return renderer;
     }
   }
-  [Serializable]
-  public struct PackedRTHandleProperties
-  {
-    public int4 viewportSize;
-    public int4 rtSize;
-    public float4 rtHandleScale;
-  }
-
-  [Serializable]
-  public struct CameraData
-  {
-    public float4 cameraPosWS;
-    public float4 cameraFwdWS;
-    public float4 screenSize;
-    public float4x4 frustumCornersWS;
-    public float4x4 prevFrustumCornersWS;
-    public PackedRTHandleProperties _rtHandleProps;
-  }
 }
